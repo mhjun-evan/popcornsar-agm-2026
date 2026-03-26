@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팝콘사 제11기 정기주주총회</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  :root {
+    --navy: #1B2A4A;
+    --navy-light: #2C4066;
+    --blue: #3B7DD8;
+    --blue-light: #E8F0FE;
+    --gray-900: #1a1a2e;
+    --gray-700: #4a4a5a;
+    --gray-500: #8a8a9a;
+    --gray-300: #d0d0d8;
+    --gray-100: #f4f4f8;
+    --white: #ffffff;
+    --accent: #E8913A;
+    --green: #2E8B57;
+    --red: #D94040;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #000;
+    overflow: hidden;
+  }
+
+  /* ── Slide Container ── */
+  .deck {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 22px 44px 32px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    background: var(--white);
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Progress Bar ── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--accent));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* ── Slide Counter ── */
+  .slide-counter {
+    position: fixed;
+    bottom: 24px;
+    right: 40px;
+    font-size: 14px;
+    color: var(--gray-500);
+    z-index: 100;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Part Indicator ── */
+  .part-tag {
+    position: absolute;
+    top: 28px;
+    left: 40px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: var(--blue-light);
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+
+  /* ── Navigation Dots ── */
+  .nav-dots {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .nav-dots .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-dots .dot.active {
+    background: var(--blue);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* ── Typography ── */
+  h1 { font-size: 58px; font-weight: 700; color: var(--navy); line-height: 1.25; }
+  h2 { font-size: 46px; font-weight: 700; color: var(--navy); line-height: 1.25; margin-bottom: 16px; }
+  h3 { font-size: 28px; font-weight: 600; color: var(--navy-light); margin-bottom: 10px; }
+  p, li { font-size: 21px; color: var(--gray-700); line-height: 1.65; }
+  .subtitle { font-size: 23px; color: var(--gray-500); font-weight: 400; margin-top: 8px; }
+  .label { font-size: 14px; color: var(--gray-500); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── Layout Helpers ── */
+  .full-width { width: 100%; max-width: 1400px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; width: 100%; max-width: 1400px; align-items: start; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; width: 100%; max-width: 1400px; }
+  .center-text { text-align: center; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--gray-100);
+    border-radius: 16px;
+    padding: 36px;
+  }
+  .card-white {
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .card-accent {
+    background: linear-gradient(135deg, var(--navy), var(--navy-light));
+    border-radius: 16px;
+    padding: 36px;
+    color: var(--white);
+  }
+  .card-accent h3, .card-accent p { color: var(--white); }
+
+  /* ── KPI Boxes ── */
+  .kpi-box {
+    text-align: center;
+    padding: 28px 20px;
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: 14px;
+  }
+  .kpi-value {
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 10px 0 6px;
+  }
+  .kpi-label {
+    font-size: 17px;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+  .kpi-change {
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .kpi-change.up { color: var(--green); }
+  .kpi-change.down { color: var(--red); }
+
+  /* ── Tables ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 19px;
+  }
+  .data-table th {
+    background: var(--navy);
+    color: var(--white);
+    padding: 16px 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 17px;
+  }
+  .data-table th:first-child { border-radius: 10px 0 0 0; }
+  .data-table th:last-child { border-radius: 0 10px 0 0; }
+  .data-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--gray-300);
+    color: var(--gray-700);
+    text-align: center;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--gray-100); }
+  .data-table .num { text-align: center; font-variant-numeric: tabular-nums; }
+  .data-table .highlight td { background: var(--blue-light); font-weight: 600; color: var(--navy); }
+
+  /* ── Agenda Timeline ── */
+  .agenda-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: 1000px;
+  }
+  .agenda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    position: relative;
+    padding: 22px 0;
+  }
+  .agenda-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 60px;
+    bottom: 0;
+    width: 2px;
+    background: var(--gray-300);
+  }
+  .agenda-dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--blue);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .agenda-dot.report { background: var(--gray-100); color: var(--gray-700); }
+  .agenda-content h3 { margin-bottom: 4px; font-size: 23px; }
+  .agenda-content p { font-size: 18px; color: var(--gray-500); }
+
+  /* ── Flow Chart ── */
+  .flow-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 900px;
+  }
+  .flow-step {
+    width: 100%;
+    max-width: 680px;
+    padding: 24px 40px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 21px;
+    font-weight: 500;
+    position: relative;
+  }
+  .flow-arrow {
+    width: 2px;
+    height: 24px;
+    background: var(--gray-300);
+    position: relative;
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -4px;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid var(--gray-300);
+    border-bottom: 2px solid var(--gray-300);
+    transform: rotate(-45deg);
+  }
+  .flow-step.input { background: var(--blue-light); color: var(--navy); border: 2px solid var(--blue); }
+  .flow-step.process { background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-300); }
+  .flow-step.output { background: var(--navy); color: var(--white); }
+  .flow-step .flow-detail { font-size: 16px; color: var(--gray-500); margin-top: 6px; font-weight: 400; }
+  .flow-step.output .flow-detail { color: rgba(255,255,255,0.7); }
+
+  /* ── Vote Result ── */
+  .vote-card {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .vote-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: center;
+    background: var(--gray-100);
+    padding: 26px 36px;
+    border-radius: 14px;
+  }
+  .vote-num {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue);
+    background: var(--blue-light);
+    padding: 8px 18px;
+    border-radius: 8px;
+  }
+  .vote-title { font-size: 22px; font-weight: 500; color: var(--navy); }
+  .vote-result {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 2px dashed var(--gray-300);
+    color: var(--gray-500);
+    min-width: 150px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .vote-result.approved {
+    background: #E8F5E9;
+    color: var(--green);
+    border: 2px solid var(--green);
+  }
+
+  /* ── Placeholder ── */
+  .placeholder {
+    border: 2px dashed var(--gray-300);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 15px;
+    background: var(--gray-100);
+  }
+  .placeholder-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+
+  /* ── Cover Slide ── */
+  .slide.cover {
+    background: linear-gradient(160deg, var(--navy) 0%, #1a2844 50%, var(--navy-light) 100%);
+    position: relative;
+  }
+  .slide.cover::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(59,125,216,0.08);
+  }
+  .slide.cover::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(232,145,58,0.06);
+  }
+  .slide.cover h1, .slide.cover p, .slide.cover .subtitle { color: var(--white); }
+  .slide.cover .subtitle { color: rgba(255,255,255,0.6); }
+  .cover-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--accent);
+    border: 1px solid rgba(232,145,58,0.4);
+    padding: 8px 24px;
+    border-radius: 30px;
+    margin-bottom: 28px;
+  }
+  .cover-info {
+    margin-top: 40px;
+    display: flex;
+    gap: 40px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+  }
+  .cover-info span { display: flex; align-items: center; gap: 8px; }
+
+  /* ── Section Divider ── */
+  .slide.divider {
+    background: var(--navy);
+  }
+  .divider-num {
+    font-size: 80px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.08);
+    position: absolute;
+    top: 60px;
+    right: 80px;
+  }
+  .slide.divider h2 { color: var(--white); font-size: 58px; }
+  .slide.divider .subtitle { color: rgba(255,255,255,0.5); font-size: 26px; }
+
+  /* ── Closing Slide ── */
+  .slide.closing {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 100%);
+  }
+  .slide.closing h1 { color: var(--white); font-size: 64px; }
+  .slide.closing p { color: rgba(255,255,255,0.6); font-size: 26px; }
+
+  /* ── Chart Container ── */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    height: 380px;
+  }
+
+  /* ── Keyboard Help ── */
+  .key-help {
+    position: fixed;
+    bottom: 20px;
+    left: 40px;
+    font-size: 12px;
+    color: var(--gray-500);
+    z-index: 100;
+    opacity: 0.6;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .slide { padding: 32px 28px; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 28px; }
+    .two-col { grid-template-columns: 1fr; gap: 24px; }
+    .three-col { grid-template-columns: 1fr; gap: 16px; }
+    .kpi-value { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="key-help">← → 방향키 또는 클릭으로 이동</div>
+
+<div class="deck" id="deck">
+
+<!-- ============================================ -->
+<!-- PART 1: OPENING -->
+<!-- ============================================ -->
+
+<!-- SLIDE 1: 표지 -->
+<div class="slide cover active" style="justify-content:center; padding:28px 80px;">
+  <!-- 상단 배지 -->
+  <div class="cover-badge">제 11 기 정기주주총회</div>
+
+  <!-- 타이틀 -->
+  <h1 style="font-size:68px; text-align:center; line-height:1.15; letter-spacing:-1px;">주식회사 팝콘사<br>정기주주총회</h1>
+  <p class="subtitle" style="margin-top:14px; font-size:22px; text-align:center; color:rgba(255,255,255,0.55);">제11기 사업연도 &nbsp;|&nbsp; 2025. 01. 01 ~ 2025. 12. 31</p>
+
+  <!-- 구분선 -->
+  <div style="width:70px; height:3px; background:var(--accent); border-radius:2px; margin:24px auto;"></div>
+
+  <!-- 안건 미리보기 카드 -->
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; width:100%; max-width:1100px; margin-bottom:28px;">
+    <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px 24px; text-align:center; backdrop-filter:blur(4px);">
+      <div style="font-size:13px; font-weight:700; letter-spacing:2px; color:var(--accent); margin-bottom:12px;">보고사항 1</div>
+      <div style="font-size:19px; font-weight:600; color:#fff; line-height:1.5;">2025 영업보고</div>
+      <div style="font-size:15px; color:rgba(255,255,255,0.45); margin-top:8px;">감사보고서 포함</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:28px 24px; text-align:center; backdrop-filter:blur(4px);">
+      <div style="font-size:13px; font-weight:700; letter-spacing:2px; color:var(--accent); margin-bottom:12px;">보고사항 2</div>
+      <div style="font-size:19px; font-weight:600; color:#fff; line-height:1.5;">2026 사업 현황</div>
+      <div style="font-size:15px; color:rgba(255,255,255,0.45); margin-top:8px;">캐시플로우 포함</div>
+    </div>
+    <div style="background:rgba(59,125,216,0.2); border:1px solid rgba(59,125,216,0.35); border-radius:16px; padding:28px 24px; text-align:center; backdrop-filter:blur(4px);">
+      <div style="font-size:13px; font-weight:700; letter-spacing:2px; color:#7BB8FF; margin-bottom:12px;">부의안건 3건</div>
+      <div style="font-size:19px; font-weight:600; color:#fff; line-height:1.6;">재무제표 승인<br>임원 보수한도<br>인센티브 도입</div>
+    </div>
+  </div>
+
+  <!-- 하단 일시/장소 -->
+  <div style="display:flex; gap:40px; align-items:center; padding:18px 44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:40px; font-size:19px; color:rgba(255,255,255,0.65);">
+    <span style="display:flex; align-items:center; gap:12px;"><span style="font-size:22px;">📅</span> 2026. 3. 27.(금) &nbsp;오전 10시</span>
+    <span style="width:1px; height:24px; background:rgba(255,255,255,0.2);"></span>
+    <span style="display:flex; align-items:center; gap:12px;"><span style="font-size:22px;">📍</span> 노벨빌딩 2층 대회의실</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: 의장 인사말 -->
+<div class="slide">
+  <div class="part-tag">PART 1 — 오프닝</div>
+  <div class="full-width center-text">
+    <p class="label" style="margin-bottom:20px;">의장 인사말</p>
+    <h2 style="font-size:38px; max-width:900px; margin:0 auto; line-height:1.5;">
+      "주주 여러분의 변함없는 관심과 성원에<br>깊이 감사드립니다."
+    </h2>
+    <div style="margin-top:36px; padding:40px; background:var(--gray-100); border-radius:16px; max-width:900px; margin-left:auto; margin-right:auto;">
+      <p style="font-size:21px; color:var(--gray-700); line-height:1.8;">
+        안녕하십니까, 대표이사 채승엽입니다.<br>
+        오늘 제11기 정기주주총회에 참석해 주신 주주 여러분께 진심으로 감사의 말씀을 드립니다.
+        지난 한 해 팝콘사는 주주 여러분의 신뢰를 바탕으로 한 걸음 더 성장할 수 있었습니다.
+        오늘 보고드릴 영업 실적과 사업 현황, 그리고 새로운 제도 도입에 대해
+        주주 여러분의 현명한 판단을 부탁드리겠습니다.
+      </p>
+      <p style="margin-top:20px; font-size:19px; color:var(--gray-500);">대표이사 채승엽</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Agenda -->
+<div class="slide">
+  <div class="part-tag">PART 1 — 오프닝</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Today's Agenda</p>
+    <h2>오늘의 안건</h2>
+    <div style="margin-top:32px;">
+      <div class="agenda-timeline">
+        <div class="agenda-item">
+          <div class="agenda-dot report">보고</div>
+          <div class="agenda-content">
+            <h3>2025년도 영업 보고</h3>
+            <p>제11기 사업연도 경영 실적 및 재무 현황</p>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot report">보고</div>
+          <div class="agenda-content">
+            <h3>2026년도 사업 추진 현황</h3>
+            <p>Q1 추진 현황 보고</p>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot">1</div>
+          <div class="agenda-content">
+            <h3>제1호 의안 — 재무제표 승인</h3>
+            <p>제11기 (2025.01.01~2025.12.31) 재무제표 승인의 건</p>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot">2</div>
+          <div class="agenda-content">
+            <h3>제2호 의안 — 임원 보수 한도 승인</h3>
+            <p>임원 보수 한도 승인의 건 (대상 2명)</p>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot">3</div>
+          <div class="agenda-content">
+            <h3>제3호 의안 — 임직원 강의 인센티브 제도 도입</h3>
+            <p>제품 외부 교육 활성화를 위한 인센티브 사규 신설</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PART 2: 보고사항 -->
+<!-- ============================================ -->
+
+<!-- SLIDE 4: 파트 구분 - 보고사항 -->
+<div class="slide divider">
+  <div class="divider-num">01</div>
+  <p class="label" style="color:rgba(255,255,255,0.4); margin-bottom:16px;">보고사항</p>
+  <h2>2025년도 영업 보고</h2>
+  <p class="subtitle">제11기 사업연도 경영 실적 보고</p>
+</div>
+
+<!-- SLIDE 5: 2025 경영 하이라이트 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2025 영업보고</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">2025 Highlights</p>
+    <h2>경영 하이라이트</h2>
+    <div class="three-col" style="margin-top:32px;">
+      <div class="kpi-box">
+        <p class="kpi-label">매출액</p>
+        <p class="kpi-value" style="color:var(--blue);">7.23억</p>
+        <p class="kpi-change up">▲ 176.3% (전기 2.62억)</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">영업손실</p>
+        <p class="kpi-value" style="color:var(--red);">△15.25억</p>
+        <p class="kpi-change up">▲ 21.4% 개선 (전기 △19.39억)</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">당기순손실</p>
+        <p class="kpi-value" style="color:var(--red);">△15.09억</p>
+        <p class="kpi-change up">▲ 19.8% 개선 (전기 △18.81억)</p>
+      </div>
+    </div>
+    <div class="three-col" style="margin-top:20px;">
+      <div class="kpi-box">
+        <p class="kpi-label">자산총계</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--navy);">37.87억</p>
+        <p class="kpi-change up">▲ 23.3% (전기 30.73억)</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">자본총계</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--navy);">32.90억</p>
+        <p class="kpi-change up">▲ 19.4% (유상증자 20.43억 포함)</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">매출 구성</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--navy);">3개 부문</p>
+        <p class="kpi-change" style="color:var(--blue);">프로그램 + 엔지니어링 + 교육 (신규)</p>
+      </div>
+    </div>
+
+    <!-- 감사보고서 긍정 하이라이트 -->
+    <div style="margin-top:20px; display:flex; gap:12px; align-items:stretch;">
+      <div style="flex:1; display:flex; align-items:center; gap:12px; padding:14px 20px; background:linear-gradient(135deg,#EBF8F0,#D4F4E2); border:1px solid #A8DFC0; border-radius:12px;">
+        <span style="font-size:22px;">✅</span>
+        <div>
+          <div style="font-size:12px; font-weight:700; color:#1E7A4A; letter-spacing:1px;">외부감사 의견</div>
+          <div style="font-size:15px; font-weight:700; color:#0F5C35; margin-top:2px;">적정 의견 수령</div>
+          <div style="font-size:11px; color:#4A9E70; margin-top:2px;">선진회계법인 · 2026.3.24</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; align-items:center; gap:12px; padding:14px 20px; background:linear-gradient(135deg,#EEF4FF,#DCE9FF); border:1px solid #AABFEE; border-radius:12px;">
+        <span style="font-size:22px;">📉</span>
+        <div>
+          <div style="font-size:12px; font-weight:700; color:#2B5ABF; letter-spacing:1px;">비용 효율화</div>
+          <div style="font-size:15px; font-weight:700; color:#1A3E99; margin-top:2px;">매출 +176% · 비용 +2.2%</div>
+          <div style="font-size:11px; color:#5577CC; margin-top:2px;">매출 대비 비용 증가 최소화</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; align-items:center; gap:12px; padding:14px 20px; background:linear-gradient(135deg,#FFF8EE,#FEECD6); border:1px solid #F0C890; border-radius:12px;">
+        <span style="font-size:22px;">🏗️</span>
+        <div>
+          <div style="font-size:12px; font-weight:700; color:#B86A00; letter-spacing:1px;">사업 다각화</div>
+          <div style="font-size:15px; font-weight:700; color:#8B4E00; margin-top:2px;">단일 → 3개 부문 확장</div>
+          <div style="font-size:11px; color:#C07A20; margin-top:2px;">엔지니어링·교육 신규 매출 발생</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: 매출 및 손익 요약 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2025 영업보고</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Financial Summary</p>
+    <h2>매출 및 손익 요약</h2>
+    <div class="two-col" style="margin-top:28px;">
+      <div>
+        <div class="chart-container" style="max-width:100%; height:300px;">
+          <canvas id="chartRevenue"></canvas>
+        </div>
+      </div>
+      <div>
+        <table class="data-table">
+          <thead>
+            <tr><th>구분</th><th>제10기 (2024)</th><th>제11기 (2025)</th><th>증감</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>영업수익(매출)</td><td class="num">261,818,182</td><td class="num">723,204,547</td><td class="num" style="color:var(--green);">+176.3%</td></tr>
+            <tr><td>영업비용</td><td class="num">2,200,987,995</td><td class="num">2,248,459,149</td><td class="num" style="color:var(--red);">+2.2%</td></tr>
+            <tr class="highlight"><td>영업이익(손실)</td><td class="num">(1,939,169,813)</td><td class="num">(1,525,254,602)</td><td class="num" style="color:var(--green);">21.4%↑</td></tr>
+            <tr><td>영업외수익</td><td class="num">69,262,062</td><td class="num">27,203,473</td><td class="num" style="color:var(--red);">-60.7%</td></tr>
+            <tr><td>영업외비용</td><td class="num">10,653,938</td><td class="num">10,831,250</td><td class="num">+1.7%</td></tr>
+            <tr class="highlight"><td>당기순이익(손실)</td><td class="num">(1,880,561,689)</td><td class="num">(1,508,882,379)</td><td class="num" style="color:var(--green);">19.8%↑</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px; font-size:13px; color:var(--gray-500);">※ 단위: 원 / 감사보고서 기준 (선진회계법인, 적정의견)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: 재무상태 요약 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2025 영업보고</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Balance Sheet</p>
+    <h2>재무상태 요약</h2>
+    <div class="two-col" style="margin-top:28px;">
+      <div>
+        <div class="chart-container" style="max-width:100%; height:300px;">
+          <canvas id="chartBalance"></canvas>
+        </div>
+      </div>
+      <div>
+        <table class="data-table">
+          <thead>
+            <tr><th>구분</th><th>제10기 (2024)</th><th>제11기 (2025)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>자산 총계</td><td class="num">3,073,022,140</td><td class="num">3,787,388,784</td></tr>
+            <tr><td>&nbsp;&nbsp;유동자산</td><td class="num">603,022,450</td><td class="num">1,456,607,601</td></tr>
+            <tr><td>&nbsp;&nbsp;비유동자산</td><td class="num">2,469,999,690</td><td class="num">2,330,781,183</td></tr>
+            <tr><td>부채 총계</td><td class="num">317,966,410</td><td class="num">497,817,393</td></tr>
+            <tr class="highlight"><td>자본 총계</td><td class="num">2,755,055,730</td><td class="num">3,289,571,391</td></tr>
+            <tr><td>부채비율</td><td class="num">11.5%</td><td class="num">15.1%</td></tr>
+          </tbody>
+        </table>
+        <!-- 감사보고서 긍정 멘트 -->
+        <div style="margin-top:16px; padding:14px 18px; background:linear-gradient(135deg,#EBF8F0,#D6F3E6); border-left:4px solid #2E8B57; border-radius:0 10px 10px 0;">
+          <div style="font-size:12px; font-weight:700; color:#1E7A4A; letter-spacing:1px; margin-bottom:4px;">✅ 감사보고서 의견 — 선진회계법인 (2026.3.24)</div>
+          <div style="font-size:13px; color:#1a5c35; line-height:1.6;">
+            "재무제표는 중요성의 관점에서 한국채택국제회계기준에 따라 적정하게 표시하고 있음" · 부채비율 <strong>15.1%</strong>로 재무건전성 양호 · 유상증자를 통한 유동자산 <strong>2.4배 확충</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: 사업부문별 실적 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2025 영업보고</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Segment Performance</p>
+    <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px;">
+      <h2 style="margin-bottom:0;">사업부문별 실적</h2>
+      <span style="font-size:22px; color:var(--gray-500); font-weight:400;">총 723,204,547원 &nbsp;·&nbsp; 전기 대비 +176.3%</span>
+    </div>
+    <div class="three-col" style="align-items:start;">
+
+      <!-- 프로그램매출 -->
+      <div>
+        <div style="background:var(--blue); color:#fff; border-radius:14px 14px 0 0; padding:16px 22px;">
+          <div style="font-size:13px; font-weight:700; opacity:0.75; letter-spacing:1px;">프로그램매출 · 46.8%</div>
+          <div style="font-size:28px; font-weight:800; margin-top:6px;">338,182천원</div>
+          <div style="font-size:13px; opacity:0.65; margin-top:4px;">전기 대비 +29.2%</div>
+        </div>
+        <table class="data-table" style="font-size:15px; border-radius:0 0 12px 12px; overflow:hidden;">
+          <thead><tr><th style="text-align:left;">거래처</th><th>금액(천원)</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:left;">(주)엘지에너지솔루션</td><td class="num">250,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ AUTOSAR SDK 패키지 (3회)</td></tr>
+            <tr><td style="text-align:left;">(주)하이콘소프트</td><td class="num">50,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ AUTOSAR AP 라이선스</td></tr>
+            <tr><td style="text-align:left;">충북대학교 산학협력단</td><td class="num">20,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ 개발도구 & 플랫폼 라이선스</td></tr>
+            <tr><td style="text-align:left;">연세대학교 산학협력단</td><td class="num">18,182</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ SW 라이선스</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 엔지니어링서비스 -->
+      <div>
+        <div style="background:var(--navy); color:#fff; border-radius:14px 14px 0 0; padding:16px 22px;">
+          <div style="font-size:13px; font-weight:700; opacity:0.75; letter-spacing:1px;">엔지니어링서비스 · 44.1%</div>
+          <div style="font-size:28px; font-weight:800; margin-top:6px;">319,000천원</div>
+          <div style="font-size:13px; opacity:0.65; margin-top:4px; color:#7BB8FF;">신규 부문</div>
+        </div>
+        <table class="data-table" style="font-size:15px; border-radius:0 0 12px 12px; overflow:hidden;">
+          <thead><tr><th style="text-align:left;">거래처</th><th>금액(천원)</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:left;">현대모비스(주)</td><td class="num">310,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ Adaptive AUTOSAR 솔루션 · 선금</td></tr>
+            <tr><td style="text-align:left;">주식회사 시네틱스</td><td class="num">9,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ 제어기 SW개발체계 점검 (2회)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 교육매출 -->
+      <div>
+        <div style="background:var(--accent); color:#fff; border-radius:14px 14px 0 0; padding:16px 22px;">
+          <div style="font-size:13px; font-weight:700; opacity:0.75; letter-spacing:1px;">교육매출 · 9.1%</div>
+          <div style="font-size:28px; font-weight:800; margin-top:6px;">66,023천원</div>
+          <div style="font-size:13px; opacity:0.65; margin-top:4px; color:#FFE0B0;">신규 부문</div>
+        </div>
+        <table class="data-table" style="font-size:15px; border-radius:0 0 12px 12px; overflow:hidden;">
+          <thead><tr><th style="text-align:left;">거래처</th><th>금액(천원)</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:left;">경기대학교</td><td class="num">18,182</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ AWS DeepRacer 자율주행 경진대회</td></tr>
+            <tr><td style="text-align:left;">현대엔지비(주)</td><td class="num">16,350</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ DDS 심화 과정 교육</td></tr>
+            <tr><td style="text-align:left;">국민대학교 산학협력단</td><td class="num">15,000</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ AUTOSAR AP 교육</td></tr>
+            <tr><td style="text-align:left;">한라대학교 산학협력단</td><td class="num">9,091</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ AUTOSAR 기초교육 (2회)</td></tr>
+            <tr><td style="text-align:left;">(주)멀티캠퍼스</td><td class="num">7,400</td></tr>
+            <tr><td style="text-align:left; font-size:13px; color:var(--gray-500);" colspan="2">&nbsp;&nbsp;└ Adaptive AUTOSAR 입문 강의</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <p style="margin-top:14px; font-size:13px; color:var(--gray-500); text-align:center;">※ 전기(제10기)는 프로그램매출 261,818,182원만 존재 / 천원 미만 반올림</p>
+  </div>
+</div>
+
+<!-- SLIDE 10: 파트 구분 - 2026 사업 추진 -->
+<div class="slide divider">
+  <div class="divider-num">02</div>
+  <p class="label" style="color:rgba(255,255,255,0.4); margin-bottom:16px;">보고사항</p>
+  <h2>2026년도 사업 추진 현황</h2>
+  <p class="subtitle">Q1 현황 보고</p>
+</div>
+
+<!-- SLIDE 12-1: 테크노프로 경영층 미팅 핵심 (3/25) — 가장 강조 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : TechnoPro</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Executive Meeting — 2026.03.25 (어제)</p>
+    <h2 style="margin-bottom:4px;">테크노프로 경영층 미팅 핵심 결과</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:18px;">참석: 팝콘사 채승엽 대표 · 테크노프로 타카세(COE실장), 사이토(Head of AI), 아키야마, 고쿠보</p>
+
+    <!-- 병행 추진 레이블 -->
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div style="height:2px; flex:1; background:linear-gradient(90deg, var(--navy), transparent);"></div>
+      <div style="background:var(--navy); color:white; font-size:12px; font-weight:700; letter-spacing:2px; padding:6px 18px; border-radius:20px;">두 트랙 병행 추진 중</div>
+      <div style="height:2px; flex:1; background:linear-gradient(90deg, transparent, var(--navy));"></div>
+    </div>
+
+    <div class="two-col" style="align-items:stretch; gap:28px;">
+      <!-- TRACK 1: 자본 참여 -->
+      <div style="background:linear-gradient(160deg, #1B2A4A, #2C4066); border-radius:16px; padding:24px 26px; color:white; position:relative; overflow:hidden; display:flex; flex-direction:column; gap:14px;">
+        <div style="position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:rgba(59,125,216,0.12); border-radius:50%;"></div>
+        <div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.45); letter-spacing:2px; font-weight:700; margin-bottom:6px;">TRACK 1 · STRATEGIC INVESTMENT</p>
+          <p style="font-size:21px; font-weight:700; color:white;">자본 참여 (지분 투자)</p>
+        </div>
+        <div style="background:rgba(255,200,0,0.15); border:1px solid rgba(255,200,0,0.4); border-radius:10px; padding:12px 16px;">
+          <p style="font-size:14px; color:#FFD700; font-weight:700; line-height:1.55;">시마즈 사장 직속 지시<br>"1초라도 빨리(1秒でも早く) 추진하라"</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:14px; line-height:1.6;">
+          <p style="color:rgba(255,255,255,0.92);">📋 기업가치 평가 및 사전 실사 착수</p>
+          <p style="color:rgba(255,255,255,0.92);">📈 IPO 로드맵과 연계한 Win-Win 구조 합의</p>
+          <p style="color:rgba(255,255,255,0.92);">⚖️ 일본 노동법상 법적 불명확 구간 해소 · 패밀리사 지위 확보</p>
+        </div>
+      </div>
+
+      <!-- TRACK 2: 라이선스 + FDE -->
+      <div style="background:var(--blue-light); border-radius:16px; padding:24px 26px; border:2px solid var(--blue); display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <p style="font-size:11px; color:var(--blue); letter-spacing:2px; font-weight:700; margin-bottom:6px;">TRACK 2 · LICENSE &amp; EDUCATION</p>
+          <p style="font-size:21px; font-weight:700; color:var(--navy);">PARVIS 라이선스 + FDE 교육</p>
+        </div>
+        <!-- 수치 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="text-align:center; background:white; border-radius:10px; padding:12px;">
+            <p style="font-size:26px; font-weight:800; color:var(--blue);">95%+</p>
+            <p style="font-size:12px; color:var(--gray-500);">코드 정확도<br><span style="font-size:11px;">(기존 79% → 분석 파이프라인)</span></p>
+          </div>
+          <div style="text-align:center; background:white; border-radius:10px; padding:12px;">
+            <p style="font-size:26px; font-weight:800; color:var(--green);">1년→2개월</p>
+            <p style="font-size:12px; color:var(--gray-500);">SDV 개발 기간 단축<br><span style="font-size:11px;">(6배 효율화)</span></p>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:14px; color:var(--gray-700); line-height:1.6;">
+          <p>📦 5인 1조 초기 도입 → <strong>100명 기준 2억 4천만 엔/년</strong></p>
+          <p>🎓 Agentic Workflow FDE 교육 (Level 1~4) 동시 진행</p>
+          <p>🔒 외부 인터넷과 완전 차단된 독립 내부망 보안 환경 기술 규격 확정</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 병행 추진 근거 + Next Step -->
+    <div style="margin-top:16px; background:linear-gradient(135deg, var(--accent), #D47A28); border-radius:12px; padding:16px 24px; color:white; display:flex; align-items:center; gap:24px;">
+      <div style="flex:1;">
+        <p style="font-size:12px; color:rgba(255,255,255,0.7); font-weight:700; letter-spacing:1px; margin-bottom:4px;">두 트랙이 병행되는 이유</p>
+        <p style="font-size:14px; line-height:1.6; color:rgba(255,255,255,0.95);">자본 관계는 FDE 기술 연수 및 엔지니어 상호 파견의 <strong style="color:white;">법적 안정성 확보를 위한 선결 조건</strong><br>→ 투자와 라이선스/교육은 서로를 강화하는 구조</p>
+      </div>
+      <div style="width:1px; background:rgba(255,255,255,0.3); align-self:stretch;"></div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:12px; color:rgba(255,255,255,0.7); font-weight:700; letter-spacing:1px; margin-bottom:4px;">NEXT MILESTONE</p>
+        <p style="font-size:20px; font-weight:800;">5월 — 사장단 서울 방문</p>
+        <p style="font-size:13px; color:rgba(255,255,255,0.85);">두 트랙 동시 최종 협의</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-2: 테크노프로 추진 경과 타임라인 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : TechnoPro</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Engagement Timeline</p>
+    <h2>추진 경과 — 6회 연속 미팅 (4개월)</h2>
+    <div style="max-width:1200px; margin-top:20px; display:flex; flex-direction:column; gap:0;">
+      <!-- 미팅 1 -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:12px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--gray-100); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--gray-700); flex-shrink:0; z-index:1;">12</div>
+        <div style="flex:1;">
+          <p style="font-size:13px; color:var(--gray-500); font-weight:500;">2025.12.02 — 테크노프로 본사 (롯폰기 모리타워)</p>
+          <p style="font-size:17px; color:var(--navy); font-weight:600;">Honda SDV 핵심 과제 분석 · 공동 전략 수립</p>
+        </div>
+        <div style="position:absolute; left:19px; top:52px; bottom:-12px; width:2px; background:var(--gray-300);"></div>
+      </div>
+      <!-- 미팅 2 -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:12px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--gray-100); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--gray-700); flex-shrink:0; z-index:1;">12</div>
+        <div style="flex:1;">
+          <p style="font-size:13px; color:var(--gray-500); font-weight:500;">2025.12.23 — 덴소 안성 제작소</p>
+          <p style="font-size:17px; color:var(--navy); font-weight:600;">Denso × TechnoPro × PopcornSAR 3사 합동 미팅 · PoC 합의</p>
+        </div>
+        <div style="position:absolute; left:19px; top:52px; bottom:-12px; width:2px; background:var(--gray-300);"></div>
+      </div>
+      <!-- 미팅 3 -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:12px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--blue-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--blue); flex-shrink:0; z-index:1;">01</div>
+        <div style="flex:1;">
+          <p style="font-size:13px; color:var(--blue); font-weight:600;">2026.01.22 — 토라노몬힐즈 모리타워 (도쿄 HQ)</p>
+          <p style="font-size:17px; color:var(--navy); font-weight:600;">Honda 3사 공동 미팅 · SDV 부장(井手博仁) 참석 · PARVIS 데모</p>
+          <div style="display:inline-flex; align-items:center; gap:8px; margin-top:6px; background:#FFF8F0; border:1px solid #F0C080; border-radius:8px; padding:6px 12px;">
+            <span style="font-size:13px;">⏸</span>
+            <p style="font-size:13px; color:#A06010; font-weight:500;">Honda 내부 사정(전동화 전략 변경)으로 일시 중단 · 테크노프로 담당자가 지속 모니터링 중</p>
+          </div>
+        </div>
+        <div style="position:absolute; left:19px; top:52px; bottom:-12px; width:2px; background:var(--gray-300);"></div>
+      </div>
+      <!-- 미팅 4 -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:12px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--blue-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--blue); flex-shrink:0; z-index:1;">03</div>
+        <div style="flex:1;">
+          <p style="font-size:13px; color:var(--blue); font-weight:600;">2026.03.10 — AICOE 출범 미팅</p>
+          <p style="font-size:17px; color:var(--navy); font-weight:600;">AI COE 신설 · Head of AI(前 AWS) 합류 · Accenture 대비 팝콘사 채택</p>
+        </div>
+        <div style="position:absolute; left:19px; top:52px; bottom:-12px; width:2px; background:var(--gray-300);"></div>
+      </div>
+      <!-- 미팅 5 -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:12px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--blue-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--blue); flex-shrink:0; z-index:1;">03</div>
+        <div style="flex:1;">
+          <p style="font-size:13px; color:var(--blue); font-weight:600;">2026.03.16 — PARVIS 계약 상세 협의 (웹미팅)</p>
+          <p style="font-size:17px; color:var(--navy); font-weight:600;">요금 체계 · FDE 교육 · 인프라 · 3가지 사업 모델 확정</p>
+        </div>
+        <div style="position:absolute; left:19px; top:52px; bottom:-12px; width:2px; background:var(--gray-300);"></div>
+      </div>
+      <!-- 미팅 6 — 어제 (강조) -->
+      <div style="display:flex; align-items:flex-start; gap:24px; position:relative; padding:14px 0;">
+        <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--accent), #D47A28); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:white; flex-shrink:0; z-index:1; box-shadow:0 0 0 4px rgba(232,145,58,0.3);">03</div>
+        <div style="flex:1; background:linear-gradient(135deg, #FFF8F0, #FFF1E0); border-radius:12px; padding:16px 20px; border:2px solid var(--accent);">
+          <p style="font-size:13px; color:var(--accent); font-weight:700;">2026.03.25 — 경영층 웹미팅 (어제)</p>
+          <p style="font-size:18px; color:var(--navy); font-weight:700;">자본 참여(지분 투자) 합의 · 사장 직속 지시 "1초라도 빨리"</p>
+          <p style="font-size:14px; color:var(--gray-700); margin-top:4px;">기업가치 평가 착수 · IPO 연계 · 5월 사장단 서울 방문 확정 · 시장 진출 전략 확정</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-3: 사업 모델 & 로드맵 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : TechnoPro</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Business Model & Roadmap</p>
+    <h2>사업 모델 & 향후 로드맵</h2>
+    <div class="two-col" style="margin-top:20px; align-items:start;">
+      <!-- 왼쪽: 사업 모델 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">협력 사업 모델 (3가지)</p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:var(--blue-light); border-radius:12px; padding:18px 22px; border-left:4px solid var(--blue);">
+            <p style="font-size:13px; font-weight:700; color:var(--blue); margin-bottom:4px;">MODEL A — 직접 판매</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">PopcornSAR가 일본 고객에 직접 솔루션 판매<br><span style="font-size:13px; color:var(--gray-500);">테크노프로가 고객사 소개 및 연결</span></p>
+          </div>
+          <div style="background:#F0F4FA; border-radius:12px; padding:18px 22px; border-left:4px solid var(--navy);">
+            <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:4px;">MODEL B — 공동 제안</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">TechnoPro 주도 + PopcornSAR 기술 지원<br><span style="font-size:13px; color:var(--gray-500);">엔지니어 파견 + PARVIS 솔루션 번들</span></p>
+          </div>
+          <div style="background:#FFF8F0; border-radius:12px; padding:18px 22px; border-left:4px solid var(--accent);">
+            <p style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:4px;">MODEL C — FDE 교육 사업</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">Agentic Workflow 실전 교육 (Level 1~4)<br><span style="font-size:13px; color:var(--gray-500);">도메인 전문 엔지니어 대상 집중 교육</span></p>
+          </div>
+        </div>
+        <!-- 핵심 수치 -->
+        <div style="background:linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius:12px; padding:16px 20px; margin-top:14px;">
+          <p style="font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:1px; font-weight:600; margin-bottom:10px; text-align:center;">PARVIS ANNUAL LICENSE — REVENUE POTENTIAL</p>
+          <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
+            <div style="text-align:center;">
+              <p style="font-size:12px; color:rgba(255,255,255,0.55); margin-bottom:4px;">초기 도입 (5인 1조)</p>
+              <p style="font-size:17px; font-weight:700; color:rgba(255,255,255,0.45);">~1,200만 엔/년</p>
+            </div>
+            <div style="color:rgba(255,255,255,0.3); font-size:18px; padding:0 4px;">→</div>
+            <div style="text-align:center; background:rgba(255,200,0,0.15); border-radius:10px; padding:12px 20px; border:1px solid rgba(255,200,0,0.4);">
+              <p style="font-size:12px; color:rgba(255,255,255,0.7); margin-bottom:4px;">100명 기준 제안가</p>
+              <p style="font-size:26px; font-weight:800; color:#FFD700; line-height:1;">2억 4,000만 엔</p>
+              <p style="font-size:11px; color:rgba(255,200,0,0.8); margin-top:2px;">연간 / ≈ 약 22억원</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 오른쪽: 로드맵 -->
+      <div style="padding-left:20px;">
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:18px; letter-spacing:0.5px;">추진 로드맵</p>
+        <div style="position:relative; padding-left:40px; border-left:3px solid var(--blue); margin-left:8px;">
+          <div style="margin-bottom:32px; position:relative;">
+            <div style="position:absolute; left:-49px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--blue); border:3px solid white; box-shadow:0 0 0 2px var(--blue);"></div>
+            <p style="font-size:15px; color:var(--blue); font-weight:700;">2026.04 ~ 06 준비 단계</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.8; margin-top:6px;">기업가치 평가 및 사전 실사 진행<br>시장 진출 전략 패키지 완성<br>FDE 교육 커리큘럼 확정</p>
+          </div>
+          <div style="margin-bottom:32px; position:relative;">
+            <div style="position:absolute; left:-49px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--accent); border:3px solid white; box-shadow:0 0 0 2px var(--accent);"></div>
+            <p style="font-size:15px; color:var(--accent); font-weight:700;">2026.05 사장단 서울 방문</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.8; margin-top:6px;">시마즈 사장 포함 경영진 방한<br>자본 참여 구조 최종 협의<br>FDE 기술 연수 실시</p>
+          </div>
+          <div style="margin-bottom:32px; position:relative;">
+            <div style="position:absolute; left:-49px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--green); border:3px solid white; box-shadow:0 0 0 2px var(--green);"></div>
+            <p style="font-size:15px; color:var(--green); font-weight:700;">2026.07 ~ 본격 도입</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.8; margin-top:6px;">공식 계약 체결 · 지분 투자 완료<br>PARVIS 일본 시장 런칭<br>Honda, Denso 등 OEM 고객 대응</p>
+          </div>
+          <div style="position:relative;">
+            <div style="position:absolute; left:-49px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--navy); border:3px solid white; box-shadow:0 0 0 2px var(--navy);"></div>
+            <p style="font-size:15px; color:var(--navy); font-weight:700;">2027 ~ 확대</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.8; margin-top:6px;">일본 전역 OEM 확산<br>전사 20,000명 엔지니어 적용<br>글로벌 SDV 시장 진출 교두보</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-4: SL 계약 체결 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : SL(에스엘)</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Contract Signed — 2026.02</p>
+    <h2 style="margin-bottom:4px;">SL(에스엘) AI 기술용역 계약 체결</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:20px;">SL 측: 배동훈 본부장 · 박세민 실장 · 조윤기 팀장 · 경왕준 책임 · 권유진 사원</p>
+
+    <!-- 계약 개요 상단 배너 -->
+    <div style="background:linear-gradient(135deg, var(--green), #34A853); border-radius:14px; padding:18px 28px; margin-bottom:20px; display:flex; align-items:center; gap:20px;">
+      <div style="background:rgba(255,255,255,0.2); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">✅</div>
+      <div style="flex:1;">
+        <p style="font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:2px; font-weight:600;">CONTRACT STATUS</p>
+        <p style="font-size:22px; font-weight:800; color:white; margin-bottom:2px;">계약 체결 완료 · 착수금 입금 완료</p>
+        <p style="font-size:14px; color:rgba(255,255,255,0.8);">2026.02.23 서명 → 02.26 간인 완료 → 03월 착수금 1.59억원 입금</p>
+      </div>
+    </div>
+
+    <div class="two-col" style="align-items:start; gap:28px;">
+      <!-- 좌측: 계약 구조 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:12px; letter-spacing:0.5px;">계약 구조 & 범위</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="background:var(--blue-light); border-radius:12px; padding:16px 20px; border-left:4px solid var(--blue);">
+            <p style="font-size:13px; font-weight:700; color:var(--blue); margin-bottom:4px;">AI 기술 용역</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">AI 기반 사양서 분석 · 테스트 컨셉 도출<br><span style="font-size:13px; color:var(--gray-500);">ISO 26262 / ASPICE 기반 AI 에이전트 구성</span></p>
+          </div>
+          <div style="background:#F0F4FA; border-radius:12px; padding:16px 20px; border-left:4px solid var(--navy);">
+            <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:4px;">PoC 대상 아이템</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">1차: 램프(Lamp) — 정형화된 사양서, 템플릿 기준<br>2차: PLBM — 중간 난이도, 램프 확장 적용</p>
+          </div>
+          <div style="background:#FFF8F0; border-radius:12px; padding:16px 20px; border-left:4px solid var(--accent);">
+            <p style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:4px;">운영 환경</p>
+            <p style="font-size:15px; color:var(--navy); font-weight:500;">SL 사내 서버(로컬) 운영 · 원격 유지보수<br><span style="font-size:13px; color:var(--gray-500);">PARVIS 버전 고정 제공 · HITL 기반 협업 구조</span></p>
+          </div>
+        </div>
+      </div>
+      <!-- 우측: 금액 & 타임라인 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:12px; letter-spacing:0.5px;">계약 금액 & 진행 경과</p>
+        <!-- 금액 박스 -->
+        <div style="background:linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius:12px; padding:18px 22px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+            <div>
+              <p style="font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:1px; font-weight:600;">TOTAL CONTRACT VALUE</p>
+              <p style="font-size:32px; font-weight:800; color:#FFD700; line-height:1.1; margin-top:4px;">5억원</p>
+              <p style="font-size:12px; color:rgba(255,255,255,0.6); margin-top:2px;">통합 패키지 (용역 + 라이선스 + 교육)</p>
+            </div>
+            <div style="text-align:right;">
+              <p style="font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:1px; font-weight:600;">착수금 (30%)</p>
+              <p style="font-size:22px; font-weight:700; color:rgba(255,255,255,0.95); line-height:1.1; margin-top:4px;">1.5억원</p>
+              <p style="font-size:12px; color:rgba(255,200,0,0.8); margin-top:2px;">+ 컨설팅 900만원</p>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.1); border-radius:8px; height:6px; overflow:hidden;">
+            <div style="background:linear-gradient(90deg, #FFD700, var(--accent)); height:100%; width:32%; border-radius:8px;"></div>
+          </div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:4px; text-align:right;">입금 진행률 약 32%</p>
+        </div>
+        <!-- 타임라인 -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--gray-500); min-width:70px; font-weight:600;">12.12</span>
+            <p style="font-size:14px; color:var(--navy);">견적서 초안 작업 (4안 비교)</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--gray-500); min-width:70px; font-weight:600;">01.09</span>
+            <p style="font-size:14px; color:var(--navy);">SL 본사 방문 미팅 (경산, 3시간)</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--gray-500); min-width:70px; font-weight:600;">02.02</span>
+            <p style="font-size:14px; color:var(--navy);">견적서 1~4안 정식 전달</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--blue); min-width:70px; font-weight:700;">02.23</span>
+            <p style="font-size:14px; color:var(--blue); font-weight:600;">계약서 양측 서명 체결</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--blue); min-width:70px; font-weight:700;">02.26</span>
+            <p style="font-size:14px; color:var(--blue); font-weight:600;">계약서 · NDA 간인 완료 · 업체등록</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span style="font-size:12px; color:var(--green); min-width:70px; font-weight:700;">03월</span>
+            <p style="font-size:14px; color:var(--green); font-weight:600;">착수금 1.59억원 입금</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-5: SL 로드맵 & 추가 계약 추진 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : SL(에스엘)</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Execution Roadmap & Expansion</p>
+    <h2 style="margin-bottom:4px;">프로젝트 실행 로드맵 & 확장 계획</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:20px;">1년 안정화 목표 · 램프 → PLBM → 수평 전개 전략</p>
+
+    <div class="two-col" style="align-items:start; gap:28px;">
+      <!-- 좌측: 실행 로드맵 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">프로젝트 실행 로드맵</p>
+        <div style="position:relative; padding-left:28px; border-left:3px solid var(--blue);">
+          <!-- Phase 1: 완료 -->
+          <div style="margin-bottom:18px; position:relative; opacity:0.75;">
+            <div style="position:absolute; left:-36px; top:2px; width:18px; height:18px; border-radius:50%; background:#4CAF50; border:3px solid white; box-shadow:0 0 0 2px #4CAF50; display:flex; align-items:center; justify-content:center;">
+              <span style="color:white; font-size:10px; font-weight:900;">✓</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <p style="font-size:13px; color:#4CAF50; font-weight:700; text-decoration:line-through;">2026.03.09 ~ 03.20 진량공장 파견</p>
+              <span style="background:#4CAF50; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">✓ 완료</span>
+            </div>
+            <p style="font-size:14px; color:var(--gray-500); line-height:1.6;">AI 서버 셋팅 · 모델 선정 · 테스트 환경 구축 완료<br>램프 사양서 기반 초기 데이터 수집 완료<br><span style="font-size:13px;">팝콘사 엔지니어 2주간 현장 파견 완료</span></p>
+          </div>
+          <!-- Phase 2: 준비 중 → 다음 단계 강조 -->
+          <div style="margin-bottom:18px; position:relative; background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(37,99,235,0.04)); border-radius:10px; padding:12px 14px; border:1.5px solid rgba(37,99,235,0.3); margin-left:-14px; padding-left:14px;">
+            <div style="position:absolute; left:-22px; top:14px; width:18px; height:18px; border-radius:50%; background:var(--blue); border:3px solid white; box-shadow:0 0 0 2px var(--blue);"></div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <p style="font-size:13px; color:var(--blue); font-weight:700;">2026.04 ~ 06 PoC 1차: 램프(Lamp)</p>
+              <span style="background:var(--blue); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">▶ 다음 단계</span>
+            </div>
+            <p style="font-size:15px; color:var(--navy); line-height:1.6;">사양서 구조화 · 템플릿화 작업<br>AI 기반 테스트 컨셉 자동 도출 PoC<br>HITL(Human-in-the-Loop) 검증 프로세스 구축</p>
+          </div>
+          <!-- Phase 3 -->
+          <div style="margin-bottom:18px; position:relative;">
+            <div style="position:absolute; left:-36px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--accent); border:3px solid white; box-shadow:0 0 0 2px var(--accent);"></div>
+            <p style="font-size:13px; color:var(--accent); font-weight:700;">2026.07 ~ 09 PoC 2차: PLBM 확장</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.6;">램프 템플릿 → PLBM 수평 적용<br>이미지·표·복합 구조 대응 고도화<br>실무자 사용성 테스트 및 피드백 반영</p>
+          </div>
+          <!-- Phase 4 -->
+          <div style="position:relative;">
+            <div style="position:absolute; left:-36px; top:2px; width:18px; height:18px; border-radius:50%; background:var(--navy); border:3px solid white; box-shadow:0 0 0 2px var(--navy);"></div>
+            <p style="font-size:13px; color:var(--navy); font-weight:700;">2026.10 ~ 2027.01 안정화 · 전개</p>
+            <p style="font-size:15px; color:var(--navy); line-height:1.6;">실무 활용 수준까지 안정화<br>추가 아이템(빌트인캠, SBW 등) 수평 전개<br>원격 유지보수 체계 가동</p>
+          </div>
+        </div>
+      </div>
+      <!-- 우측: 확장 계획 & 의미 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">확장 계획 & 전략적 의미</p>
+        <!-- 추가 계약 가능성 -->
+        <div style="background:linear-gradient(135deg, var(--blue), #2563EB); border-radius:12px; padding:18px 22px; margin-bottom:14px;">
+          <p style="font-size:13px; color:rgba(255,255,255,0.7); font-weight:600; margin-bottom:8px;">추가 계약 확장 가능성</p>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px;">🔄</span>
+              <p style="font-size:14px; color:rgba(255,255,255,0.92); font-weight:500;">유지보수 · 고도화 연간 계약 전환</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px;">📋</span>
+              <p style="font-size:14px; color:rgba(255,255,255,0.92); font-weight:500;">추가 아이템(5개 중 3개 잔여) PoC 확장</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px;">🏭</span>
+              <p style="font-size:14px; color:rgba(255,255,255,0.92); font-weight:500;">SL 전사 도입 시 PARVIS 라이선스 전환</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px;">🎓</span>
+              <p style="font-size:14px; color:rgba(255,255,255,0.92); font-weight:500;">AI 컨설팅 · FDE 교육 추가 수주</p>
+            </div>
+          </div>
+        </div>
+        <!-- SL 소개 컨텍스트 -->
+        <div style="background:#F0F4FA; border-radius:12px; padding:16px 20px; margin-bottom:14px;">
+          <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:6px;">SL(에스엘) — 고객사 개요</p>
+          <p style="font-size:14px; color:var(--navy); line-height:1.6;">글로벌 자동차 부품 Tier-1 기업 (KOSPI 상장)<br>램프·전자제어 등 자동차 핵심 부품 제조<br>경산 본사 · 글로벌 20개국 거점 보유</p>
+        </div>
+        <!-- 전략적 의미 -->
+        <div style="background:linear-gradient(135deg, var(--accent), #E67E22); border-radius:12px; padding:16px 20px;">
+          <p style="font-size:13px; color:rgba(255,255,255,0.8); font-weight:600; margin-bottom:6px;">전략적 의미</p>
+          <p style="font-size:14px; color:rgba(255,255,255,0.95); line-height:1.65; font-weight:500;">국내 대형 Tier-1 첫 계약 → <span style="color:#FFE066; font-weight:700;">레퍼런스 확보</span><br>AI+AUTOSAR 결합 실무 사례 구축<br>PoC 성공 시 <span style="color:#FFE066; font-weight:700;">전사 확대 + 추가 수주</span> 가능</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단: Next Step 바 -->
+    <div style="background:linear-gradient(90deg, var(--green), #34A853); border-radius:10px; padding:12px 24px; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:20px;">
+      <p style="font-size:14px; color:rgba(255,255,255,0.95); font-weight:600;">✅ 진량공장 파견 완료 &nbsp;→&nbsp; 🚀 4월 PoC 1차 본격 착수 준비 완료 &nbsp;→&nbsp; 📋 잔금 입금 일정 확인 중</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-6: 현대위아 & 이지트로닉스 현황 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — Q1 추진 현황 : 현대위아 · 이지트로닉스</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Pipeline Status — On Hold (Not Dropped)</p>
+    <h2 style="margin-bottom:4px;">추가 파이프라인 현황</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:18px;">양사 모두 고객사 내부 사정에 의한 일시 보류 · 지속 모니터링 중</p>
+
+    <div class="two-col" style="align-items:stretch; gap:28px;">
+      <!-- 좌: 현대위아 -->
+      <div style="background:#F8FAFF; border:1px solid #D0DDEF; border-radius:16px; padding:22px 26px; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <p style="font-size:20px; font-weight:800; color:var(--navy);">현대위아</p>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF8F0; border:1px solid #F0C080; border-radius:20px; padding:4px 12px;">
+            <span style="font-size:12px;">⏸</span>
+            <p style="font-size:12px; color:#A06010; font-weight:600;">내부 우선순위 보류</p>
+          </div>
+        </div>
+        <!-- 요약 -->
+        <div style="background:white; border-radius:10px; padding:14px 18px; border:1px solid #E0E8F8; margin-bottom:12px;">
+          <p style="font-size:13px; font-weight:700; color:var(--blue); margin-bottom:6px;">프로젝트 개요</p>
+          <p style="font-size:14px; color:var(--navy); line-height:1.6;">AI 기반 테스트케이스 자동 생성 도입 검토<br>TMS 제어시스템 검증팀 · 의왕연구소<br><span style="font-size:13px; color:var(--gray-500);">PARVIS AI TC Generator 활용 · MCDC 반영 가능 여부 등 검토</span></p>
+        </div>
+        <!-- 경과 -->
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px; font-size:13px;">
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--gray-500); min-width:52px; font-weight:600;">12월</span>
+            <p style="color:var(--navy);">AI TC 데모 진행 및 피드백 수신</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--blue); min-width:52px; font-weight:600;">02.25</span>
+            <p style="color:var(--navy); font-weight:600;">의왕연구소 방문 미팅</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--gray-500); min-width:52px; font-weight:600;">02.27</span>
+            <p style="color:var(--navy);">교육 커리큘럼 + 약식 견적 + AI 도입 이슈 자료 전달</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--accent); min-width:52px; font-weight:600;">03.12</span>
+            <p style="color:var(--accent); font-weight:600;">김성수 책임 통화 — "내부 긴급 사안으로 TC 건 논의 지연"</p>
+          </div>
+        </div>
+        <!-- 대응 현황 -->
+        <div style="background:var(--blue-light); border-radius:10px; padding:12px 16px; margin-top:auto;">
+          <p style="font-size:13px; font-weight:600; color:var(--navy);">📌 대응 현황</p>
+          <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">PoC 진행 여부 내부 검토 대기 중<br>팝콘사가 김성수 책임과 정기적 follow-up 유지 중<br>내부 우선순위 정리 후 재논의 예정</p>
+        </div>
+      </div>
+
+      <!-- 우: 이지트로닉스 -->
+      <div style="background:#FAFFF8; border:1px solid #C0DEC0; border-radius:16px; padding:22px 26px; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <p style="font-size:20px; font-weight:800; color:var(--navy);">이지트로닉스</p>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF8F0; border:1px solid #F0C080; border-radius:20px; padding:4px 12px;">
+            <span style="font-size:12px;">⏸</span>
+            <p style="font-size:12px; color:#A06010; font-weight:600;">상부 보고 대기</p>
+          </div>
+        </div>
+        <!-- 요약 -->
+        <div style="background:white; border-radius:10px; padding:14px 18px; border:1px solid #C8E0C8; margin-bottom:12px;">
+          <p style="font-size:13px; font-weight:700; color:#2C5F3E; margin-bottom:6px;">프로젝트 개요</p>
+          <p style="font-size:14px; color:var(--navy); line-height:1.6;">AUTOSAR CP 기반 IPEM 마이그레이션 PoC<br>상용차/SDV 대응 · 인피니언 MCU 신규 도입<br><span style="font-size:13px; color:var(--gray-500);">견적 약 3.5억원(VAT 별도) · NDA 체결 완료</span></p>
+        </div>
+        <!-- 경과 -->
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px; font-size:13px;">
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--gray-500); min-width:52px; font-weight:600;">01.13</span>
+            <p style="color:var(--navy);">이지트로닉스 사옥 방문</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--blue); min-width:52px; font-weight:600;">01월</span>
+            <p style="color:var(--navy); font-weight:600;">최종 견적서 발송 + NDA 체결 완료</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--gray-500); min-width:52px; font-weight:600;">02월</span>
+            <p style="color:var(--navy);">상부 보고 후 비교 결과 답변 예정 (미정 상태 지속)</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <span style="color:var(--accent); min-width:52px; font-weight:600;">03월</span>
+            <p style="color:var(--accent); font-weight:600;">3차례 follow-up — "드랍 아님, 답변 주기로 약속"</p>
+          </div>
+        </div>
+        <!-- 대응 현황 -->
+        <div style="background:#F0FAF0; border-radius:10px; padding:12px 16px; margin-top:auto;">
+          <p style="font-size:13px; font-weight:600; color:var(--navy);">📌 대응 현황</p>
+          <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">견적·NDA 모두 완료 상태 · 의사결정만 남음<br>조유진 연구원 통해 상부 보고 촉구 중<br>진행 유무에 대해 반드시 답변 주기로 확인</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 요약 바 -->
+    <div style="background:linear-gradient(90deg, #F8FAFF, #F0FAF0); border:1px solid #D0DDEF; border-radius:10px; padding:12px 24px; margin-top:14px; display:flex; align-items:center; justify-content:center; gap:24px;">
+      <p style="font-size:14px; color:var(--navy); font-weight:600; text-align:center;">양사 모두 드랍이 아닌 <span style="color:var(--accent); font-weight:700;">내부 사정에 의한 일시 보류</span> 상태 · 정기적 follow-up을 통해 재개 시점을 지속 확인 중입니다</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-7: 추가 파이프라인 확장 — 장성자동차 & CTR-제이에스테크 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2026 사업현황</div>
+  <div class="full-width">
+    <h2>🆕 추가 파이프라인 확장 — 3월 신규 접촉</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:18px;">2026년 3월, 새로운 고객사 2곳과 접촉을 시작하여 사업 확장 기회를 모색 중입니다</p>
+
+    <div class="two-col">
+      <!-- 좌측: 장성자동차 (GWM) -->
+      <div style="background:linear-gradient(135deg, #FFF8F0, #FFFFFF); border:1px solid #E8D5C4; border-radius:14px; padding:24px; display:flex; flex-direction:column;">
+        <!-- 헤더 -->
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="background:linear-gradient(135deg, #E85D3A, #D4462A); border-radius:10px; padding:8px 14px;">
+            <p style="font-size:14px; font-weight:700; color:#fff; margin:0;">🇨🇳 장성자동차 (GWM)</p>
+          </div>
+          <span style="background:#FFF3E0; color:#E65100; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px;">🆕 신규 접촉</span>
+        </div>
+
+        <!-- 기업 개요 -->
+        <div style="background:#FFF5EE; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:#C45A2D; margin-bottom:6px;">기업 개요</p>
+          <p style="font-size:13px; color:var(--navy); line-height:1.6; margin:0;">중국 최대 SUV/픽업 제조사 · 글로벌 60+개국 수출<br>연 매출 약 30조원 규모 · 하이브리드/EV 라인업 확대 중</p>
+        </div>
+
+        <!-- 접촉 경위 -->
+        <div style="background:#FFFFFF; border:1px solid #F0E0D0; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:#C45A2D; margin-bottom:8px;">📧 접촉 경위</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <span style="background:#E85D3A; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">3/20</span>
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;">GWM 담당자가 팝콘사 웹사이트를 통해<br><span style="font-weight:600;">AI 기반 AUTOSAR AP/CP 개발 지원</span> 문의</p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <span style="background:#E85D3A; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">3/20</span>
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;">팝콘사가 위챗(WeChat)으로 연결, 중국어 대응 시작</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 니즈 -->
+        <div style="background:#FFFFFF; border:1px solid #F0E0D0; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:#C45A2D; margin-bottom:6px;">🎯 고객 니즈</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="background:#FFF5EE; border-radius:6px; padding:8px 10px;">
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;"><span style="font-weight:600;">담당 영역:</span> 차체 도메인 컨트롤러(Body Domain Controller) · 차량 전체 통신 게이트웨이</p>
+            </div>
+            <div style="background:#FFF5EE; border-radius:6px; padding:8px 10px;">
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;"><span style="font-weight:600;">핵심 문제:</span> SWC 개발 완료 후 차종별로 통신 매트릭스(Communication Matrix)가 상이 → 차종마다 SWC-통신 매트릭스 재통합 작업 필요</p>
+            </div>
+            <div style="background:#FFF5EE; border-radius:6px; padding:8px 10px;">
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;"><span style="font-weight:600;">Pain Point:</span> 통신 매트릭스 변화는 크지 않으나, 매 차종마다 통합 작업을 처음부터 반복 → 대규모 공수 낭비</p>
+            </div>
+            <p style="font-size:12.5px; color:var(--accent); font-weight:600; margin:0; padding-top:2px;">→ AI 기반 통신 통합 자동화로 반복 공수 절감 가능성 확인 요청</p>
+          </div>
+        </div>
+
+        <!-- 상태 -->
+        <div style="background:#FFF3E0; border-radius:8px; padding:10px 14px; margin-top:auto;">
+          <p style="font-size:12.5px; color:#E65100; font-weight:600; margin:0;">📋 구체적 니즈 파악 및 미팅 일정 조율 중</p>
+        </div>
+      </div>
+
+      <!-- 우측: CTR-제이에스테크 -->
+      <div style="background:linear-gradient(135deg, #F0F4FF, #FFFFFF); border:1px solid #C8D5F0; border-radius:14px; padding:24px; display:flex; flex-direction:column;">
+        <!-- 헤더 -->
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="background:linear-gradient(135deg, var(--blue), var(--navy)); border-radius:10px; padding:8px 14px;">
+            <p style="font-size:14px; font-weight:700; color:#fff; margin:0;">🏭 CTR 그룹</p>
+          </div>
+          <span style="background:#E8F0FE; color:var(--navy); font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px;">🆕 관계 구축 중</span>
+        </div>
+
+        <!-- 기업 개요 -->
+        <div style="background:#EEF2FF; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:var(--blue); margin-bottom:6px;">기업 개요</p>
+          <p style="font-size:13px; color:var(--navy); line-height:1.6; margin:0;">자동차 부품/시험 전문 그룹 · <span style="font-weight:600;">연 매출 약 4,000억원 · 임직원 2,000명+</span><br>2026년 2월 <span style="font-weight:600;">제이에스테크(AUTOSAR 사업)</span> 인수 · IT 자회사 포메이션랩스 보유<br>전사 AI 도입 및 SDV 전환에 적극 투자 중</p>
+        </div>
+
+        <!-- 접촉 경위 -->
+        <div style="background:#FFFFFF; border:1px solid #D0DDEF; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:var(--blue); margin-bottom:8px;">🤝 접촉 경위</p>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <span style="background:var(--blue); color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">3/13</span>
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;">외부 AI 유료 강의에서 <span style="font-weight:600;">CTR 그룹 강상우 부회장</span>과 첫 만남<br>CTR이 인수한 제이에스테크의 AUTOSAR 사업 확인</p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <span style="background:var(--blue); color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">3/16</span>
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;">팝콘사 주최 세미나에 강상우 부회장 초청<br>후속 미팅 유도 및 협력 방안 구체화 착수</p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:8px;">
+              <span style="background:var(--blue); color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">3/25</span>
+              <p style="font-size:12.5px; color:var(--navy); line-height:1.5; margin:0;"><span style="font-weight:600; color:var(--accent);">4월 초 팝콘사 내방 확정</span> —<br>강상우 부회장 · IT총괄 본부장 · 전장사업부 R&amp;D 본부장 · 포메이션랩스 대표</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 전략적 의미 -->
+        <div style="background:#FFFFFF; border:1px solid #D0DDEF; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+          <p style="font-size:12px; font-weight:700; color:var(--blue); margin-bottom:6px;">💡 전략적 의미</p>
+          <p style="font-size:13px; color:var(--navy); line-height:1.6; margin:0;">부회장이 직접 AI 유료 강의에 참석할 만큼 <span style="font-weight:600;">전사 AI 효율화</span>에 주도적<br>팝콘사와 유사한 기업 구조 개선 니즈 → <span style="font-weight:600; color:var(--accent);">높은 사업 시너지 기대</span></p>
+        </div>
+
+        <!-- 상태 -->
+        <div style="background:#E8F0FE; border-radius:8px; padding:10px 14px; margin-top:auto;">
+          <p style="font-size:12.5px; color:var(--navy); font-weight:600; margin:0;">🗓️ 4월 초 VIP 내방 대응 준비 중 · AUTOSAR + AI 전사 도입 협력 의제</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 요약 바 -->
+    <div style="background:linear-gradient(90deg, #FFF8F0, #F0F4FF); border:1px solid #D0DDEF; border-radius:10px; padding:12px 24px; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:24px;">
+      <p style="font-size:14px; color:var(--navy); font-weight:600; text-align:center;">Q1 후반 <span style="color:var(--accent); font-weight:700;">신규 2건의 접촉</span>이 시작됨 · 중국 OEM + 국내 부품사로 고객 포트폴리오 다변화 추진 중</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12-8: AIDV 교육 사업 본격 추진 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2026 사업현황</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">AIDV Education Business Launch</p>
+    <h2 style="margin-bottom:4px;">AIDV 교육 사업 본격 추진</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:18px;">CEO 직강 · AI 기반 AUTOSAR 전환 실무 워크숍 개설 — 국내 최초</p>
+
+    <div class="two-col" style="align-items:stretch; gap:28px;">
+      <!-- 좌측: 교육 과정 개요 -->
+      <div style="background:linear-gradient(160deg, #1B2A4A, #2C4066); border-radius:16px; padding:24px 26px; color:white; display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.45); letter-spacing:2px; font-weight:700; margin-bottom:6px;">FLAGSHIP COURSE</p>
+          <p style="font-size:20px; font-weight:700; color:white;">AI로 끝내는 Legacy → AUTOSAR<br>전환 실무 과정 (BMS 기반)</p>
+        </div>
+        <!-- 핵심 수치 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px;">
+          <div style="background:rgba(255,255,255,0.08); border-radius:8px; padding:10px 8px; text-align:center; border:1px solid rgba(255,255,255,0.1);">
+            <p style="font-size:22px; font-weight:800; color:var(--accent);">6</p>
+            <p style="font-size:10px; color:rgba(255,255,255,0.6);">시간 집중</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.08); border-radius:8px; padding:10px 8px; text-align:center; border:1px solid rgba(255,255,255,0.1);">
+            <p style="font-size:22px; font-weight:800; color:#60A5FA;">20</p>
+            <p style="font-size:10px; color:rgba(255,255,255,0.6);">명 정원</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.08); border-radius:8px; padding:10px 8px; text-align:center; border:1px solid rgba(255,255,255,0.1);">
+            <p style="font-size:22px; font-weight:800; color:#10B981;">99</p>
+            <p style="font-size:10px; color:rgba(255,255,255,0.6);">만원/인</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.08); border-radius:8px; padding:10px 8px; text-align:center; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <p style="font-size:18px; font-weight:800; color:#FFD700; line-height:1.2;">국내<br>최초</p>
+            <p style="font-size:10px; color:rgba(255,255,255,0.6);">AIDV × AI코딩</p>
+          </div>
+        </div>
+        <!-- 커리큘럼 요약 -->
+        <div style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
+          <p style="font-size:11px; color:rgba(255,255,255,0.45); font-weight:700; letter-spacing:1px; margin-bottom:4px;">6세션 커리큘럼</p>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(255,255,255,0.06); border-radius:6px;">
+            <span style="color:#60A5FA; font-size:11px; font-weight:700; min-width:14px;">1</span>
+            <p style="color:rgba(255,255,255,0.85); margin:0;">과정 개요 &amp; AI 개발 환경 세팅</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(255,255,255,0.06); border-radius:6px;">
+            <span style="color:#60A5FA; font-size:11px; font-weight:700; min-width:14px;">2</span>
+            <p style="color:rgba(255,255,255,0.85); margin:0;">AI 기반 Legacy 코드 분석 (BMS)</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(59,130,246,0.15); border-radius:6px; border:1px solid rgba(59,130,246,0.3);">
+            <span style="color:#60A5FA; font-size:11px; font-weight:700; min-width:14px;">3</span>
+            <p style="color:rgba(255,255,255,0.92); font-weight:600; margin:0;">AI 기반 SWC 생성 (핵심 실습)</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(59,130,246,0.15); border-radius:6px; border:1px solid rgba(59,130,246,0.3);">
+            <span style="color:#60A5FA; font-size:11px; font-weight:700; min-width:14px;">4</span>
+            <p style="color:rgba(255,255,255,0.92); font-weight:600; margin:0;">System Design ARXML 자동 생성</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(59,130,246,0.15); border-radius:6px; border:1px solid rgba(59,130,246,0.3);">
+            <span style="color:#60A5FA; font-size:11px; font-weight:700; min-width:14px;">5</span>
+            <p style="color:rgba(255,255,255,0.92); font-weight:600; margin:0;">ECU Configuration (RTE &amp; OS)</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(255,255,255,0.06); border-radius:6px;">
+            <span style="color:#FFD700; font-size:11px; font-weight:700; min-width:14px;">6</span>
+            <p style="color:rgba(255,255,255,0.85); margin:0;">데이터 연계 &amp; 실무 활용 + Q&amp;A</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 사업적 의미 & 확장 계획 -->
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <!-- 과정 핵심 -->
+        <div style="background:var(--blue-light); border:2px solid var(--blue); border-radius:14px; padding:20px 22px;">
+          <p style="font-size:13px; font-weight:700; color:var(--blue); margin-bottom:10px;">🎯 과정 핵심</p>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:14px; color:var(--navy); line-height:1.6;">
+            <p>👨‍🏫 <strong>채승엽 대표(20년+ AIDV 경력)</strong> 직접 강의</p>
+            <p>💻 <strong>Claude Code</strong> 활용 AI Agentic Coding 실습</p>
+            <p>🏎️ BMS 기반 Legacy C → Classic AUTOSAR 전환</p>
+            <p>📄 SWC 생성 · ARXML 설계 · RTE/OS 설정 직접 수행</p>
+          </div>
+        </div>
+        <!-- 사업 확장 가능성 -->
+        <div style="background:#F8FAFF; border:1px solid #D0DDEF; border-radius:14px; padding:22px 26px; flex:1;">
+          <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px;">📈 사업적 의미 & 확장 계획</p>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <span style="background:var(--green); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:10px; white-space:nowrap;">수익</span>
+              <p style="font-size:15px; color:var(--navy); line-height:1.6; margin:0;">회당 20명 × 99만원 = <strong>약 2,000만원</strong> 매출<br>연 12회 운영 시 <strong style="color:var(--green);">약 2.4억원</strong> 추가 매출원 확보</p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <span style="background:var(--blue); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:10px; white-space:nowrap;">영업</span>
+              <p style="font-size:15px; color:var(--navy); line-height:1.6; margin:0;">교육 → 컨설팅 → 솔루션 도입 파이프라인 연결<br>교육생이 <strong>잠재 고객으로 자연 전환</strong></p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <span style="background:var(--accent); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:10px; white-space:nowrap;">확장</span>
+              <p style="font-size:15px; color:var(--navy); line-height:1.6; margin:0;">기업 맞춤형 교육(In-house) · 글로벌 웨비나<br>테크노프로 FDE 교육과 동일 프레임워크 활용</p>
+            </div>
+          </div>
+        </div>
+        <!-- 정기 교육 체계 -->
+        <div style="background:#F0FAF0; border:1px solid #B5E0C8; border-radius:12px; padding:14px 20px;">
+          <p style="font-size:14px; color:var(--navy); font-weight:600; line-height:1.6;">🎯 본 시범 교육을 시작으로 <strong style="color:var(--green);">월 1~2회 정기 교육 체계</strong>를 구축하여,<br>AIDV 교육을 회사의 <strong style="color:var(--green);">안정적 반복 매출원</strong>으로 정착시킬 계획입니다</p>
+        </div>
+        <!-- 첫 회차 정보 -->
+        <div style="background:linear-gradient(135deg, var(--accent), #D47A28); border-radius:14px; padding:16px 22px; color:white;">
+          <p style="font-size:12px; color:rgba(255,255,255,0.7); font-weight:700; letter-spacing:1px; margin-bottom:6px;">FIRST SESSION — OPEN</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <p style="font-size:17px; font-weight:700;">2026년 4월 25일 (토) · 선릉역 부근</p>
+              <p style="font-size:13px; color:rgba(255,255,255,0.85);">얼리버드 모집 중 · 선착순 20명 한정</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.2); border-radius:10px; padding:8px 16px; text-align:center;">
+              <p style="font-size:11px; color:rgba(255,255,255,0.7);">얼리버드 특가 (34% 할인)</p>
+              <p style="font-size:14px; color:rgba(255,255,255,0.5); text-decoration:line-through;">정가 150만원</p>
+              <p style="font-size:22px; font-weight:800;">99만원</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: 캐시플로우 핵심 지표 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2026 사업현황</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Cash Flow Overview</p>
+    <h2>2026 자금 현황 핵심 지표</h2>
+    <div class="three-col" style="margin-top:24px;">
+      <div class="kpi-box">
+        <p class="kpi-label">기초잔액 (1월)</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--blue);">12.35억</p>
+        <p class="kpi-change" style="color:var(--gray-500);">2025년말 이월금</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">확정 입금 총액</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--green);">14.73억</p>
+        <p class="kpi-change" style="color:var(--gray-500);">계약/협약 기 체결분</p>
+        <p style="font-size:11px; color:var(--blue); font-weight:600; margin-top:4px;">※ 국책과제 정부출연금 포함</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">연간 총 운영비</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--red);">26.80억</p>
+        <p class="kpi-change" style="color:var(--gray-500);">월평균 2.23억</p>
+      </div>
+    </div>
+    <div class="three-col" style="margin-top:16px;">
+      <div class="kpi-box">
+        <p class="kpi-label">추가 파이프라인</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--accent);">44.50억</p>
+        <p class="kpi-change" style="color:var(--gray-500);">협의/제안 중 (가중평균)</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">고정비 비율</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--navy);">86.3%</p>
+        <p class="kpi-change" style="color:var(--gray-500);">총 지출 대비</p>
+      </div>
+      <div class="kpi-box">
+        <p class="kpi-label">인원</p>
+        <p class="kpi-value" style="font-size:46px; color:var(--navy);">23명</p>
+        <p class="kpi-change" style="color:var(--gray-500);">2026년 3월 말 기준</p>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:13px; color:var(--gray-500); text-align:center;">※ 단위: 천원 기준 환산 / 작성일 2026.03.23 / Confidential</p>
+  </div>
+</div>
+
+<!-- SLIDE 13-2: 월별 자금 흐름 차트 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2026 사업현황</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Monthly Cash Flow</p>
+    <h2>월별 자금 흐름</h2>
+    <div style="margin-top:20px; width:100%; max-width:1100px; height:340px; margin-left:auto; margin-right:auto;">
+      <canvas id="chartCashFlow"></canvas>
+    </div>
+    <p style="margin-top:12px; font-size:13px; color:var(--gray-500); text-align:center;">※ 4월 이후는 계획 기반 추정치 / 단위: 천원</p>
+  </div>
+</div>
+
+<!-- SLIDE 13-3: 확정 입금 & 파이프라인 -->
+<div class="slide">
+  <div class="part-tag">보고사항 — 2026 사업현황</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:8px;">Revenue Pipeline</p>
+    <h2>확정 입금 내역 & 매출 파이프라인</h2>
+    <div class="two-col" style="margin-top:20px;">
+      <div>
+        <h3 style="color:var(--green);">확정 입금 (14.73억)</h3>
+        <table class="data-table" style="margin-top:10px; font-size:17px;">
+          <thead><tr><th>거래처</th><th>금액(천원)</th><th>시기</th></tr></thead>
+          <tbody>
+            <tr style="background:#EBF8F0;">
+              <td colspan="3" style="padding:6px 18px; font-size:13px; font-weight:700; color:#2E8B57; letter-spacing:1px; text-align:left;">🏛 국책과제 수입 (수익, 매출 외)</td>
+            </tr>
+            <tr><td>정부과제 3건</td><td class="num">768,225</td><td>4월~</td></tr>
+            <tr style="background:#F0F4FA;">
+              <td colspan="3" style="padding:6px 18px; font-size:13px; font-weight:700; color:var(--navy); letter-spacing:1px; text-align:left;">💼 일반 매출</td>
+            </tr>
+            <tr><td>SL — 선수금</td><td class="num">159,000</td><td>3월</td></tr>
+            <tr><td>모비스 — 자동차연구원</td><td class="num">150,000</td><td>4월</td></tr>
+            <tr><td>SL — 중도금</td><td class="num">200,000</td><td>11월</td></tr>
+            <tr><td>모비스 — 잔금</td><td class="num">90,000</td><td>5월</td></tr>
+            <tr><td>라이선스/교육 (기존)</td><td class="num">100,000</td><td>연간</td></tr>
+            <tr><td>기타 (현대차 등)</td><td class="num">6,000</td><td>1월</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="color:var(--accent);">파이프라인 — 협의/제안 중</h3>
+        <table class="data-table" style="margin-top:10px; font-size:17px;">
+          <thead><tr><th>건명</th><th>예상(천원)</th><th>확률</th><th>예상 입금 시기</th></tr></thead>
+          <tbody>
+            <tr><td>테크노프로 (일본)</td><td class="num">2,000,000</td><td>50%</td><td>2026.Q3 (7월)</td></tr>
+            <tr><td>SL — 추가 SI</td><td class="num">500,000</td><td>70%</td><td>2026.Q2</td></tr>
+            <tr><td>현대위아</td><td class="num">500,000</td><td>50%</td><td>2026.Q2</td></tr>
+            <tr><td>이지트로닉스</td><td class="num">350,000</td><td>30%</td><td>2026.Q2</td></tr>
+            <tr><td>중국 GWM</td><td class="num">300,000</td><td>50%</td><td>2026.Q2</td></tr>
+            <tr><td>SL 대규모 교육</td><td class="num">225,000</td><td>70%</td><td>2026.Q2</td></tr>
+            <tr><td>AIDV 교육/대학 등</td><td class="num">240,000</td><td>70%</td><td>2026.Q2~Q4</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PART 3: 부의안건 -->
+<!-- ============================================ -->
+
+<!-- SLIDE 14: 파트 구분 - 부의안건 -->
+<div class="slide divider">
+  <div class="divider-num">03</div>
+  <p class="label" style="color:rgba(255,255,255,0.4); margin-bottom:16px;">부의안건</p>
+  <h2>의안 심의 및 의결</h2>
+  <p class="subtitle">제1호 ~ 제3호 의안</p>
+</div>
+
+<!-- SLIDE 15: 제1호 의안 개요 -->
+<div class="slide">
+  <div class="part-tag">제1호 의안</div>
+  <div class="full-width center-text">
+    <div style="display:inline-block; background:var(--blue-light); color:var(--blue); font-weight:700; font-size:14px; padding:8px 20px; border-radius:20px; margin-bottom:20px;">제1호 의안</div>
+    <h2 style="font-size:38px;">제11기 재무제표 승인의 건</h2>
+    <p class="subtitle">2025.01.01 ~ 2025.12.31 사업연도</p>
+    <div class="card" style="max-width:900px; margin:32px auto 0; text-align:left;">
+      <p style="font-size:21px; line-height:1.8;">
+        상법 제449조에 의거, 제11기 사업연도(2025.01.01~2025.12.31)의 재무제표에 대하여
+        주주 여러분의 승인을 구합니다. 재무제표는 외부 감사를 완료하였으며,
+        감사 의견은 다음 슬라이드에서 보고드리겠습니다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 16: 재무제표 핵심 요약 -->
+<div class="slide">
+  <div class="part-tag">제1호 의안</div>
+  <div class="full-width">
+    <h2>재무제표 핵심 요약</h2>
+    <div class="two-col" style="margin-top:24px;">
+      <div>
+        <h3>손익계산서 요약</h3>
+        <table class="data-table" style="margin-top:12px;">
+          <thead><tr><th>항목</th><th>제11기 (2025)</th></tr></thead>
+          <tbody>
+            <tr><td>영업수익(매출)</td><td class="num">723,204,547</td></tr>
+            <tr><td>영업비용</td><td class="num">2,248,459,149</td></tr>
+            <tr><td>영업이익(손실)</td><td class="num" style="color:var(--red);">(1,525,254,602)</td></tr>
+            <tr class="highlight"><td>당기순이익(손실)</td><td class="num" style="color:var(--red);">(1,508,882,379)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>재무상태표 요약</h3>
+        <table class="data-table" style="margin-top:12px;">
+          <thead><tr><th>항목</th><th>제11기 (2025)</th></tr></thead>
+          <tbody>
+            <tr><td>자산 총계</td><td class="num">3,787,388,784</td></tr>
+            <tr><td>부채 총계</td><td class="num">497,817,393</td></tr>
+            <tr class="highlight"><td>자본 총계</td><td class="num">3,289,571,391</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:13px; color:var(--gray-500);">※ 단위: 원 / 선진회계법인 감사보고서 기준</p>
+  </div>
+</div>
+
+<!-- SLIDE 17: 감사의견 & 의결 요청 -->
+<div class="slide">
+  <div class="part-tag">제1호 의안</div>
+  <div class="full-width center-text">
+    <h2>감사 의견 & 의결 요청</h2>
+    <div style="margin-top:28px; display:flex; gap:32px; justify-content:center;">
+      <div class="card" style="flex:1; max-width:340px; text-align:center;">
+        <p style="font-size:48px; margin-bottom:12px;">✅</p>
+        <h3>외부 감사 의견</h3>
+        <p style="margin-top:12px; font-size:24px; font-weight:700; color:var(--green);">적정</p>
+        <p style="margin-top:8px; font-size:14px; color:var(--gray-500);">선진회계법인 (2026.3.24)</p>
+      </div>
+      <div class="card" style="flex:1; max-width:340px; text-align:center;">
+        <p style="font-size:48px; margin-bottom:12px;">📋</p>
+        <h3>의결 요청 사항</h3>
+        <p style="margin-top:12px; font-size:16px; line-height:1.7;">
+          제11기 재무제표<br>(재무상태표, 손익계산서,<br>이익잉여금처분계산서)의<br>
+          <strong style="color:var(--blue);">원안대로 승인</strong>을<br>요청드립니다.
+        </p>
+      </div>
+    </div>
+    <!-- 감사보고서 송부 안내 -->
+    <div style="margin-top:24px; max-width:720px; margin-left:auto; margin-right:auto; display:flex; align-items:flex-start; gap:14px; padding:16px 22px; background:#FFFBF0; border:1px solid #F0D080; border-left:4px solid var(--accent); border-radius:0 12px 12px 0; text-align:left;">
+      <span style="font-size:22px; line-height:1;">📬</span>
+      <div>
+        <div style="font-size:12px; font-weight:700; color:#A06000; letter-spacing:1px; margin-bottom:4px;">감사보고서 송부 안내</div>
+        <p style="font-size:14px; color:var(--gray-700); line-height:1.7;">
+          상세 감사보고서(날인본)는 <strong>2026년 3월 26일</strong> 감사인(선진회계법인) 날인이 완료되었습니다.<br>
+          본 주주총회 종료 후 <strong>주주 여러분께 이메일로 개별 송부</strong>드릴 예정이오니 참고하여 주시기 바랍니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 17-V: 제1호 의결 -->
+<div class="slide" style="background:linear-gradient(160deg,var(--navy) 0%,#1a2844 60%,var(--navy-light) 100%);">
+  <div style="text-align:center; width:100%; max-width:700px;">
+    <div style="display:inline-block; font-size:12px; font-weight:700; letter-spacing:2px; color:var(--accent); border:1px solid rgba(232,145,58,0.4); padding:6px 20px; border-radius:20px; margin-bottom:24px;">제1호 의안</div>
+    <h2 style="color:#fff; font-size:42px; line-height:1.3; margin-bottom:12px;">제11기 재무제표 승인의 건</h2>
+    <p style="color:rgba(255,255,255,0.5); font-size:15px; margin-bottom:48px;">주주 여러분의 의결을 요청드립니다</p>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+      <span id="vote1" class="vote-result" onclick="toggleVote(this)" style="font-size:22px; padding:20px 60px; border-radius:16px; cursor:pointer; min-width:260px;">의결 대기</span>
+      <p style="color:rgba(255,255,255,0.35); font-size:13px;">클릭하여 의결 결과를 기록하세요</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18: 제2호 의안 개요 -->
+<div class="slide">
+  <div class="part-tag">제2호 의안</div>
+  <div class="full-width center-text">
+    <div style="display:inline-block; background:var(--blue-light); color:var(--blue); font-weight:700; font-size:14px; padding:8px 20px; border-radius:20px; margin-bottom:20px;">제2호 의안</div>
+    <h2 style="font-size:38px;">임원 보수 한도 승인의 건</h2>
+    <p class="subtitle">대상 인원: 2명</p>
+    <div style="max-width:780px; margin:28px auto 0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>직책</th><th>성명</th><th>보수 한도</th><th>실제 지급액</th><th>집행률</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대표이사</td><td>채승엽</td><td class="num">125,000,000원</td><td class="num">125,000,000원</td><td class="num" style="color:var(--green); font-weight:700;">100%</td></tr>
+          <tr><td>CTO</td><td>최윤기</td><td class="num">125,000,000원</td><td class="num">125,000,000원</td><td class="num" style="color:var(--green); font-weight:700;">100%</td></tr>
+          <tr class="highlight"><td colspan="2"><strong>합계</strong></td><td class="num"><strong>250,000,000원</strong></td><td class="num"><strong>250,000,000원</strong></td><td class="num" style="color:var(--green); font-weight:700;">100%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px; font-size:13px; color:var(--gray-500); text-align:left;">※ 제10기(전기) 실적 기준 / 제11기(금기) 동일 한도 요청</p>
+    </div>
+    <div style="margin-top:24px; padding:20px 24px; background:var(--blue-light); border-radius:12px; max-width:1000px; margin-left:auto; margin-right:auto;">
+      <p style="font-size:21px; color:var(--navy); font-weight:600;">전기와 동일한 보수 한도 <strong>2억 5천만원 (1인당 1억 2천 5백만원)</strong>의 <span style="color:var(--blue);">승인</span>을 요청드립니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18-V: 제2호 의결 -->
+<div class="slide" style="background:linear-gradient(160deg,var(--navy) 0%,#1a2844 60%,var(--navy-light) 100%);">
+  <div style="text-align:center; width:100%; max-width:700px;">
+    <div style="display:inline-block; font-size:12px; font-weight:700; letter-spacing:2px; color:var(--accent); border:1px solid rgba(232,145,58,0.4); padding:6px 20px; border-radius:20px; margin-bottom:24px;">제2호 의안</div>
+    <h2 style="color:#fff; font-size:42px; line-height:1.3; margin-bottom:12px;">임원 보수 한도 승인의 건</h2>
+    <p style="color:rgba(255,255,255,0.5); font-size:15px; margin-bottom:48px;">주주 여러분의 의결을 요청드립니다</p>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+      <span id="vote2" class="vote-result" onclick="toggleVote(this)" style="font-size:22px; padding:20px 60px; border-radius:16px; cursor:pointer; min-width:260px;">의결 대기</span>
+      <p style="color:rgba(255,255,255,0.35); font-size:13px;">클릭하여 의결 결과를 기록하세요</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19: 제3호 의안 개요 & 배경 -->
+<div class="slide">
+  <div class="part-tag">제3호 의안</div>
+  <div class="full-width">
+    <div style="text-align:center;">
+      <div style="display:inline-block; background:var(--blue-light); color:var(--blue); font-weight:700; font-size:14px; padding:8px 20px; border-radius:20px; margin-bottom:20px;">제3호 의안</div>
+      <h2 style="font-size:44px;">임직원 강의 인센티브 제도 도입의 건</h2>
+      <p class="subtitle">제품 외부 교육 활성화를 위한 인센티브 사규 신설</p>
+    </div>
+    <div class="two-col" style="margin-top:32px;">
+      <div class="card">
+        <h3>도입 배경</h3>
+        <ul style="margin-top:12px; padding-left:20px;">
+          <li style="margin-bottom:10px;">외부 고객 대상 교육·세미나 수요 증가</li>
+          <li style="margin-bottom:10px;">내부 인력의 강의 참여 동기 부여 필요</li>
+          <li style="margin-bottom:10px;">회사 매출과 구성원 보상의 균형 확보</li>
+          <li>체계적인 인센티브 기준 마련으로 투명성 강화</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>적용 범위</h3>
+        <ul style="margin-top:12px; padding-left:20px;">
+          <li style="margin-bottom:10px;"><strong>적용 대상:</strong> 외부 요청 유료 교육·세미나</li>
+          <li style="margin-bottom:10px;"><strong>제외 대상:</strong> 자발적 사내 교육</li>
+          <li style="margin-bottom:10px;"><strong>인센티브 형태:</strong> 급여 포함 지급 (원천징수 적용)</li>
+          <li><strong>비율 검토:</strong> 연 1회 이상 시장 환경 반영 조정</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19-2: 왜 임원 포함이 필수인가 + 수익 구조 분석 -->
+<div class="slide">
+  <div class="part-tag">제3호 의안 — 핵심 논점</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Incentive Structure & Workforce Analysis</p>
+    <h2 style="margin-bottom:4px;">교육 인센티브 수익 구조 및 적용 대상 분석</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:20px;">23명 조직에서 외부 교육 수요에 대응할 수 있는 핵심 인력 분석</p>
+
+    <div class="two-col" style="align-items:start; gap:28px;">
+      <!-- 좌측: 수익 구조 시각화 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">교육 매출 1,000만원 기준 — 회사 vs 인센티브</p>
+        <!-- 바 차트 시각화 -->
+        <div style="background:#F8FAFF; border-radius:14px; padding:20px 24px; border:1px solid #E0E8F8;">
+          <!-- 전체 바 -->
+          <div style="margin-bottom:16px;">
+            <p style="font-size:12px; color:var(--gray-500); margin-bottom:6px; font-weight:600;">총 교육수입 1,000만원 배분 구조</p>
+            <div style="display:flex; height:40px; border-radius:8px; overflow:hidden; font-size:12px; font-weight:700; color:white;">
+              <div style="background:var(--navy); flex:30; display:flex; align-items:center; justify-content:center;">라이선스 30%</div>
+              <div style="background:var(--blue); flex:14; display:flex; align-items:center; justify-content:center;">운영비 14%</div>
+              <div style="background:#5B8DEF; flex:11.2; display:flex; align-items:center; justify-content:center;">회사이익 11%</div>
+              <div style="background:#94B8F8; flex:35.8; display:flex; align-items:center; justify-content:center; color:var(--navy);">강사비 36%</div>
+              <div style="background:var(--accent); flex:9; display:flex; align-items:center; justify-content:center;">인센 9%</div>
+            </div>
+          </div>
+          <!-- 핵심 메시지 -->
+          <div style="display:flex; gap:12px;">
+            <div style="flex:1; background:linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius:10px; padding:14px 16px; text-align:center;">
+              <p style="font-size:11px; color:rgba(255,255,255,0.6); font-weight:600;">회사 귀속</p>
+              <p style="font-size:28px; font-weight:800; color:#FFD700;">~55%</p>
+              <p style="font-size:12px; color:rgba(255,255,255,0.7);">라이선스+운영비+이익</p>
+            </div>
+            <div style="flex:1; background:linear-gradient(135deg, var(--blue), #2563EB); border-radius:10px; padding:14px 16px; text-align:center;">
+              <p style="font-size:11px; color:rgba(255,255,255,0.6); font-weight:600;">강사 노무비</p>
+              <p style="font-size:28px; font-weight:800; color:white;">~36%</p>
+              <p style="font-size:12px; color:rgba(255,255,255,0.7);">교육 수행 대가</p>
+            </div>
+            <div style="flex:1; background:linear-gradient(135deg, var(--accent), #E67E22); border-radius:10px; padding:14px 16px; text-align:center;">
+              <p style="font-size:11px; color:rgba(255,255,255,0.6); font-weight:600;">인센티브</p>
+              <p style="font-size:28px; font-weight:800; color:white;">~9%</p>
+              <p style="font-size:12px; color:rgba(255,255,255,0.7);">동기부여 환원분</p>
+            </div>
+          </div>
+          <p style="font-size:13px; color:var(--blue); font-weight:600; text-align:center; margin-top:12px;">→ 교육 매출의 90% 이상이 회사에 귀속 · 인센티브는 추가 매출에서만 발생</p>
+        </div>
+      </div>
+
+      <!-- 우측: 임원 제외 시 문제점 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">임원 제외 시 발생하는 실질적 문제</p>
+        <!-- 인력 구조 -->
+        <div style="background:#FFF5F5; border:1px solid #F0C0C0; border-radius:12px; padding:16px 20px; margin-bottom:12px;">
+          <p style="font-size:13px; font-weight:700; color:var(--red); margin-bottom:8px;">🚨 23명 조직 — 외부 교육 가능 인력 현실</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:white; border-radius:8px;">
+              <span style="font-size:14px; color:var(--navy); font-weight:600;">임원 (CTO·VP 등 기술리더)</span>
+              <span style="font-size:14px; color:var(--red); font-weight:700;">외부 요청의 80% 이상 대상</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:white; border-radius:8px;">
+              <span style="font-size:14px; color:var(--navy); font-weight:600;">시니어 엔지니어</span>
+              <span style="font-size:14px; color:var(--gray-500);">일부 교육 가능</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:white; border-radius:8px;">
+              <span style="font-size:14px; color:var(--navy); font-weight:600;">주니어 엔지니어</span>
+              <span style="font-size:14px; color:var(--gray-500);">외부 교육 어려움</span>
+            </div>
+          </div>
+        </div>
+        <!-- 문제점 요약 -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="background:var(--blue-light); border-radius:10px; padding:12px 16px; border-left:4px solid var(--red);">
+            <p style="font-size:14px; color:var(--navy); font-weight:600;">❌ 임원 제외 = 제도 자체가 유명무실</p>
+            <p style="font-size:13px; color:var(--gray-500);">고객이 요청하는 교육의 강사는 대부분 임원급 기술 전문가</p>
+          </div>
+          <div style="background:var(--blue-light); border-radius:10px; padding:12px 16px; border-left:4px solid var(--red);">
+            <p style="font-size:14px; color:var(--navy); font-weight:600;">❌ 교육 매출 기회 자체를 포기</p>
+            <p style="font-size:13px; color:var(--gray-500);">임원이 참여하지 않으면 고객 요청을 거절해야 하는 상황 발생</p>
+          </div>
+          <div style="background:var(--blue-light); border-radius:10px; padding:12px 16px; border-left:4px solid var(--blue);">
+            <p style="font-size:14px; color:var(--navy); font-weight:600;">✅ 인센티브는 "추가" 매출에서만 발생</p>
+            <p style="font-size:13px; color:var(--gray-500);">기존 인건비와 무관 · 교육하지 않으면 인센티브도 0원</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19-3: 안전장치 & 업계 비교 -->
+<div class="slide">
+  <div class="part-tag">제3호 의안 — 안전장치 & 업계 비교</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Governance & Industry Benchmark</p>
+    <h2 style="margin-bottom:4px;">제도 운영 안전장치 및 업계 기준 비교</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:20px;">제도적 상한선 설정 및 투명성 확보 방안</p>
+
+    <div class="two-col" style="align-items:start; gap:28px;">
+      <!-- 좌측: 안전장치 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">제안 안전장치 (4중 보호)</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- 안전장치 1 -->
+          <div style="background:linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--accent); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">1</span>
+              <p style="font-size:15px; font-weight:700; color:white;">개인별 연간 상한</p>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:4px;">
+              <div style="flex:1; background:rgba(255,255,255,0.1); border-radius:8px; padding:10px 14px; text-align:center;">
+                <p style="font-size:11px; color:rgba(255,255,255,0.6);">임원</p>
+                <p style="font-size:22px; font-weight:800; color:#FFD700;">3,000만원/년</p>
+              </div>
+              <div style="flex:1; background:rgba(255,255,255,0.1); border-radius:8px; padding:10px 14px; text-align:center;">
+                <p style="font-size:11px; color:rgba(255,255,255,0.6);">직원</p>
+                <p style="font-size:22px; font-weight:800; color:white;">2,000만원/년</p>
+              </div>
+            </div>
+          </div>
+          <!-- 안전장치 2 -->
+          <div style="background:var(--blue-light); border-radius:12px; padding:14px 20px; border-left:4px solid var(--blue);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="background:var(--blue); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">2</span>
+              <div>
+                <p style="font-size:15px; font-weight:700; color:var(--navy);">전사 연간 인센티브 총액 한도</p>
+                <p style="font-size:13px; color:var(--gray-500);">연간 교육 매출의 <strong style="color:var(--blue);">15% 이내</strong>로 제한</p>
+              </div>
+            </div>
+          </div>
+          <!-- 안전장치 3 -->
+          <div style="background:#F0F4FA; border-radius:12px; padding:14px 20px; border-left:4px solid var(--navy);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="background:var(--navy); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">3</span>
+              <div>
+                <p style="font-size:15px; font-weight:700; color:var(--navy);">임원 강의 시 이사회 사전 보고</p>
+                <p style="font-size:13px; color:var(--gray-500);">임원 외부 교육 건당 이사회에 사전 서면 보고 의무</p>
+              </div>
+            </div>
+          </div>
+          <!-- 안전장치 4 -->
+          <div style="background:#FFF8F0; border-radius:12px; padding:14px 20px; border-left:4px solid var(--accent);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="background:var(--accent); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">4</span>
+              <div>
+                <p style="font-size:15px; font-weight:700; color:var(--navy);">분기별 투자사 실적 공개</p>
+                <p style="font-size:13px; color:var(--gray-500);">인센티브 지급 현황을 분기 보고에 포함 · 완전 투명 운영</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 업계 사례 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; letter-spacing:0.5px;">업계 비교 — 임원 포함이 표준</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- 사례 1 -->
+          <div style="background:#F8FAFF; border:1px solid #E0E8F8; border-radius:10px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <p style="font-size:14px; font-weight:700; color:var(--navy);">IT 교육 플랫폼 (인프런·패캠·코드잇)</p>
+              <span style="background:var(--green); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">임원 포함</span>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">현직 CTO·VP급 기술리더가 강의 제작 · 수익의 30~50%를 강사에게 배분 · 직급 무관하게 동일 적용</p>
+          </div>
+          <!-- 사례 2 -->
+          <div style="background:#F8FAFF; border:1px solid #E0E8F8; border-radius:10px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <p style="font-size:14px; font-weight:700; color:var(--navy);">글로벌 컨설팅펌 (맥킨지·BCG·딜로이트)</p>
+              <span style="background:var(--green); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">임원 포함</span>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">파트너(임원급)에게도 교육·컨설팅 프로젝트 수익 기반 성과보수 지급 · 오히려 파트너 참여가 수주의 핵심</p>
+          </div>
+          <!-- 사례 3 -->
+          <div style="background:#F8FAFF; border:1px solid #E0E8F8; border-radius:10px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <p style="font-size:14px; font-weight:700; color:var(--navy);">대학 산학협력단 (서울대·KAIST 등)</p>
+              <span style="background:var(--green); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">임원 포함</span>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">교수(임원급 전문가)의 외부 교육·컨설팅 수익 중 개인 환원 비율 40~70% 적용 · 학교 규정으로 제도화</p>
+          </div>
+          <!-- 사례 4 -->
+          <div style="background:#F8FAFF; border:1px solid #E0E8F8; border-radius:10px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <p style="font-size:14px; font-weight:700; color:var(--navy);">SI·IT서비스 (삼성SDS·LG CNS 등)</p>
+              <span style="background:var(--green); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">임원 포함</span>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">기술 교육·세미나 수행 시 직급별 강사 수당 지급 · 임원급 아키텍트가 주요 교육 담당</p>
+          </div>
+          <!-- 사례 5 -->
+          <div style="background:#F8FAFF; border:1px solid #E0E8F8; border-radius:10px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <p style="font-size:14px; font-weight:700; color:var(--navy);">글로벌 빅테크 (Google·MS·AWS)</p>
+              <span style="background:var(--green); color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">임원 포함</span>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.5;">Developer Advocate·Evangelist 프로그램 운영 · VP 이상 임원도 기술 강연 수행 · 별도 성과 평가 반영</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 결론 바 -->
+    <div style="background:linear-gradient(90deg, var(--navy), var(--navy-light)); border-radius:10px; padding:14px 24px; margin-top:14px; display:flex; align-items:center; justify-content:center; gap:16px;">
+      <p style="font-size:15px; color:rgba(255,255,255,0.95); font-weight:600; text-align:center;">💡 대부분의 업계에서 임원을 포함하는 것이 일반적이며, 임원의 전문성이 교육 품질과 수주에 핵심적인 역할을 합니다</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19-4: 교육 인센티브 도입 필요성 & 기대 효과 -->
+<div class="slide">
+  <div class="part-tag">제3호 의안 — 도입 필요성 & 기대 효과</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Why This Incentive System is Essential</p>
+    <h2 style="margin-bottom:4px;">교육 인센티브 도입이 필수인 이유</h2>
+    <p style="font-size:15px; color:var(--gray-500); margin-bottom:20px;">제도 미도입 시 발생하는 실질적 손실과 도입 시 기대 효과</p>
+
+    <div class="two-col" style="align-items:start; gap:28px;">
+      <!-- 좌측: 도입하지 않을 경우의 문제점 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--red); margin-bottom:14px;">⚠️ 인센티브 미도입 시 — 실질적 사업 리스크</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="background:#FFF5F5; border:1px solid #F0C0C0; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--red); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">1</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">교육 매출 기회 상실</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">교육 요청 대부분이 임원급 전문가를 지정 → 인센티브 없이 업무 외 시간 투입을 강제할 수 없음<br><strong style="color:var(--red);">결과: 고객 요청 거절 → 연간 2~3억원 교육 매출 기회 소멸</strong></p>
+          </div>
+          <div style="background:#FFF5F5; border:1px solid #F0C0C0; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--red); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">2</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">핵심 인력 이탈 위험</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">외부 강의 수요가 개인에게 직접 유입 시, 임직원이 퇴사 후 프리랜서 전환 유인 증가<br><strong style="color:var(--red);">결과: 회사는 매출도 잃고 인력도 잃는 이중 손실</strong></p>
+          </div>
+          <div style="background:#FFF5F5; border:1px solid #F0C0C0; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--red); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">3</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">경쟁사 대비 보상 격차</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">업계 대부분의 기업이 교육 인센티브를 운영하는 상황에서 미도입 시 인력 확보 경쟁에서 열위<br><strong style="color:var(--red);">결과: 채용·리텐션 모두 불리 → 조직 경쟁력 약화</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 도입 시 기대 효과 -->
+      <div>
+        <p style="font-size:15px; font-weight:700; color:var(--green); margin-bottom:14px;">✅ 도입 시 — 회사와 투자사 모두에게 유리한 구조</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="background:#EBF8F0; border:1px solid #B5E0C8; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--green); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">1</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">신규 매출원 확보 (연 2~3억+)</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">AIDV 워크숍 연 12회 운영만으로 약 2.4억원 · 기업 In-house 교육 포함 시 3억+ 가능<br><strong style="color:var(--green);">인센티브 지급 후에도 교육 매출의 90%+ 회사 귀속</strong></p>
+          </div>
+          <div style="background:#EBF8F0; border:1px solid #B5E0C8; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--green); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">2</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">교육 → 영업 파이프라인 선순환</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">교육생 20명 = 잠재 고객 20명 · 교육 경험이 솔루션 도입 결정의 핵심 트리거<br><strong style="color:var(--green);">SL 계약(5억)도 세미나 접점에서 시작된 사례</strong></p>
+          </div>
+          <div style="background:#EBF8F0; border:1px solid #B5E0C8; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--green); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">3</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">브랜드 가치 & 시장 지위 강화</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">CEO·CTO급 직강은 업계 최고 수준의 교육 브랜드로 자리매김<br><strong style="color:var(--green);">팝콘사 = AIDV 교육의 대명사로 시장 인지도 확보</strong></p>
+          </div>
+          <div style="background:#EBF8F0; border:1px solid #B5E0C8; border-radius:12px; padding:16px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="background:var(--green); color:white; font-size:12px; font-weight:800; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;">4</span>
+              <p style="font-size:15px; font-weight:700; color:var(--navy);">핵심 인력 리텐션 효과</p>
+            </div>
+            <p style="font-size:13px; color:var(--gray-500); line-height:1.6; padding-left:34px;">회사를 통해 강의하는 것이 개인 활동보다 유리한 구조 설계<br><strong style="color:var(--green);">인력 이탈 방지 + 조직 로열티 강화</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 결론 바 -->
+    <div style="background:linear-gradient(90deg, var(--navy), var(--navy-light)); border-radius:10px; padding:14px 24px; margin-top:14px; display:flex; align-items:center; justify-content:center;">
+      <p style="font-size:15px; color:rgba(255,255,255,0.95); font-weight:600; text-align:center;">💡 인센티브는 <span style="color:#FFD700;">비용이 아닌 투자</span>입니다 — 교육 매출 90%+ 회사 귀속 · 교육→영업 파이프라인 → 솔루션 매출 확대의 선순환 구조</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 20: 제도 핵심 구조 (플로우차트) -->
+<div class="slide">
+  <div class="part-tag">제3호 의안</div>
+  <div class="full-width">
+    <h2 style="text-align:center;">인센티브 계산 구조</h2>
+    <p class="subtitle" style="text-align:center;">교육수입으로부터 인센티브까지의 산정 흐름</p>
+    <div style="display:flex; justify-content:center; margin-top:28px;">
+      <div class="flow-chart">
+        <div class="flow-step input">
+          <strong>총 교육수입</strong>
+          <div class="flow-detail">고객이 지불한 전체 교육비용</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step process">
+          <strong>① 라이선스비 분리</strong>
+          <div class="flow-detail">별도 명시 시 제외 / 미명시 시 전체의 30% 간주</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step process">
+          <strong>② 운영비 공제 (20%)</strong>
+          <div class="flow-detail">교재·장소·행정 비용</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step process">
+          <strong>③ 회사 이익 공제 (20%)</strong>
+          <div class="flow-detail">운영비 공제 후 잔액의 20%</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step process">
+          <strong>④ 강사비 산정</strong>
+          <div class="flow-detail">위 공제를 마친 잔액 = 강사비</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step output">
+          <strong>강사 인센티브 = 강사비 × 20%</strong>
+          <div class="flow-detail">복수 강사 시 기여도/시간 비율로 배분</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 21: 케이스별 예시 & 의결 요청 -->
+<div class="slide">
+  <div class="part-tag">제3호 의안</div>
+  <div class="full-width">
+    <p class="label" style="margin-bottom:6px;">Case Study</p>
+    <h2 style="margin-bottom:4px;">케이스별 예시</h2>
+    <p class="subtitle" style="font-size:18px; margin-bottom:20px;">총 교육수입 <strong>1,000만원</strong> 기준</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px; width:100%; max-width:1400px;">
+
+      <!-- Case A -->
+      <div style="background:#F8FAFF; border:1px solid #C8D8F8; border-radius:18px; overflow:hidden;">
+        <div style="background:var(--navy); padding:18px 28px; display:flex; align-items:center; gap:12px;">
+          <span style="background:var(--accent); color:#fff; font-size:14px; font-weight:800; padding:5px 14px; border-radius:20px; letter-spacing:1px;">CASE A</span>
+          <span style="color:#fff; font-size:20px; font-weight:600;">라이선스비 별도 구분</span>
+        </div>
+        <div style="padding:20px 26px; display:flex; flex-direction:column; gap:12px;">
+          <!-- 총 수입 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#fff; border-radius:10px; border:1px solid #E0E8F8;">
+            <span style="font-size:18px; color:var(--gray-700);">💰 총 교육수입</span>
+            <span style="font-size:19px; font-weight:700; color:var(--navy);">10,000,000원</span>
+          </div>
+          <!-- 공제 항목들 -->
+          <div style="display:flex; flex-direction:column; gap:8px; padding:14px 18px; background:#FFF5F5; border-radius:10px; border:1px solid #F8D0D0;">
+            <div style="font-size:14px; font-weight:700; color:#C04040; letter-spacing:1px; margin-bottom:2px;">공 제</div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>라이선스비 (별도 명시)</span><span style="color:var(--red); font-weight:600;">－ 2,000,000원</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>운영비 (잔액×20%)</span><span style="color:var(--red); font-weight:600;">－ 1,600,000원</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>회사 이익 (잔액×20%)</span><span style="color:var(--red); font-weight:600;">－ 1,280,000원</span>
+            </div>
+          </div>
+          <!-- 강사비 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#EEF4FF; border-radius:10px; border:1px solid #AABFEE;">
+            <span style="font-size:18px; color:var(--navy);">강사비 잔액</span>
+            <span style="font-size:19px; font-weight:700; color:var(--blue);">5,120,000원</span>
+          </div>
+          <!-- 인센티브 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; background:linear-gradient(135deg,var(--navy),var(--navy-light)); border-radius:14px;">
+            <div>
+              <div style="font-size:14px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:1px;">강사 인센티브 (×20%)</div>
+              <div style="font-size:32px; font-weight:800; color:#fff; margin-top:4px;">1,024,000원</div>
+            </div>
+            <div style="background:var(--accent); color:#fff; font-size:18px; font-weight:800; padding:10px 20px; border-radius:20px;">20%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Case B -->
+      <div style="background:#FAFFF8; border:1px solid #C0DEC0; border-radius:18px; overflow:hidden;">
+        <div style="background:#2C5F3E; padding:18px 28px; display:flex; align-items:center; gap:12px;">
+          <span style="background:#F0A030; color:#fff; font-size:14px; font-weight:800; padding:5px 14px; border-radius:20px; letter-spacing:1px;">CASE B</span>
+          <span style="color:#fff; font-size:20px; font-weight:600;">라이선스비 미구분</span>
+        </div>
+        <div style="padding:20px 26px; display:flex; flex-direction:column; gap:12px;">
+          <!-- 총 수입 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#fff; border-radius:10px; border:1px solid #C8E0C8;">
+            <span style="font-size:18px; color:var(--gray-700);">💰 총 교육수입</span>
+            <span style="font-size:19px; font-weight:700; color:var(--navy);">10,000,000원</span>
+          </div>
+          <!-- 공제 항목들 -->
+          <div style="display:flex; flex-direction:column; gap:8px; padding:14px 18px; background:#FFF5F5; border-radius:10px; border:1px solid #F8D0D0;">
+            <div style="font-size:14px; font-weight:700; color:#C04040; letter-spacing:1px; margin-bottom:2px;">공 제</div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>라이선스비 (전체×30% 간주)</span><span style="color:var(--red); font-weight:600;">－ 3,000,000원</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>운영비 (잔액×20%)</span><span style="color:var(--red); font-weight:600;">－ 1,400,000원</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--gray-700);">
+              <span>회사 이익 (잔액×20%)</span><span style="color:var(--red); font-weight:600;">－ 1,120,000원</span>
+            </div>
+          </div>
+          <!-- 강사비 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#EEF4FF; border-radius:10px; border:1px solid #AABFEE;">
+            <span style="font-size:18px; color:var(--navy);">강사비 잔액</span>
+            <span style="font-size:19px; font-weight:700; color:var(--blue);">4,480,000원</span>
+          </div>
+          <!-- 인센티브 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; background:linear-gradient(135deg,#2C5F3E,#3E7A54); border-radius:14px;">
+            <div>
+              <div style="font-size:14px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:1px;">강사 인센티브 (×20%)</div>
+              <div style="font-size:32px; font-weight:800; color:#fff; margin-top:4px;">896,000원</div>
+            </div>
+            <div style="background:#F0A030; color:#fff; font-size:18px; font-weight:800; padding:10px 20px; border-radius:20px;">20%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px; text-align:center; padding:13px; background:var(--blue-light); border-radius:12px;">
+      <p style="font-size:15px; color:var(--navy); font-weight:600;">본 인센티브 사규(안)의 <span style="color:var(--blue);">원안대로 승인</span>을 요청드립니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 21-V: 제3호 의결 -->
+<div class="slide" style="background:linear-gradient(160deg,var(--navy) 0%,#1a2844 60%,var(--navy-light) 100%);">
+  <div style="text-align:center; width:100%; max-width:700px;">
+    <div style="display:inline-block; font-size:12px; font-weight:700; letter-spacing:2px; color:var(--accent); border:1px solid rgba(232,145,58,0.4); padding:6px 20px; border-radius:20px; margin-bottom:24px;">제3호 의안</div>
+    <h2 style="color:#fff; font-size:42px; line-height:1.3; margin-bottom:12px;">임직원 강의 인센티브 제도 도입의 건</h2>
+    <p style="color:rgba(255,255,255,0.5); font-size:15px; margin-bottom:48px;">주주 여러분의 의결을 요청드립니다</p>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+      <span id="vote3" class="vote-result" onclick="toggleVote(this)" style="font-size:22px; padding:20px 60px; border-radius:16px; cursor:pointer; min-width:260px;">의결 대기</span>
+      <p style="color:rgba(255,255,255,0.35); font-size:13px;">클릭하여 의결 결과를 기록하세요</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PART 4: 클로징 -->
+<!-- ============================================ -->
+
+<!-- SLIDE 22: 종합 의결 결과 -->
+<div class="slide">
+  <div class="part-tag">PART 4 — 의결 결과</div>
+  <div class="full-width center-text">
+    <p class="label" style="margin-bottom:8px;">Voting Summary</p>
+    <h2>종합 의결 결과</h2>
+    <div class="vote-card" style="margin-top:32px;" id="summaryCard">
+      <div class="vote-row">
+        <span class="vote-num">제1호</span>
+        <span class="vote-title">제11기 재무제표 승인의 건</span>
+        <span id="summary1" class="vote-result">의결 대기</span>
+      </div>
+      <div class="vote-row">
+        <span class="vote-num">제2호</span>
+        <span class="vote-title">임원 보수 한도 승인의 건</span>
+        <span id="summary2" class="vote-result">의결 대기</span>
+      </div>
+      <div class="vote-row">
+        <span class="vote-num">제3호</span>
+        <span class="vote-title">임직원 강의 인센티브 제도 도입의 건</span>
+        <span id="summary3" class="vote-result">의결 대기</span>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:14px; color:var(--gray-500);">※ 각 의안 의결 슬라이드에서 기록된 결과가 자동 반영됩니다</p>
+  </div>
+</div>
+
+<!-- SLIDE 23: 감사 인사 & 폐회 -->
+<div class="slide closing">
+  <div style="text-align:center;">
+    <p style="font-size:14px; color:rgba(255,255,255,0.4); letter-spacing:3px; margin-bottom:24px;">CLOSING</p>
+    <h1>감사합니다</h1>
+    <p style="margin-top:20px;">주주 여러분의 변함없는 관심과 성원에 감사드립니다.</p>
+    <div style="margin-top:48px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.1);">
+      <p style="font-size:16px; color:rgba(255,255,255,0.5);">주식회사 팝콘사 · 대표이사 채승엽</p>
+      <p style="font-size:14px; color:rgba(255,255,255,0.3); margin-top:8px;">서울 강남구 테헤란로78길 16, 노벨빌딩 2층</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+// ── Slide Engine ──
+const slides = document.querySelectorAll('.slide');
+const progressBar = document.getElementById('progressBar');
+const slideCounter = document.getElementById('slideCounter');
+const navDotsEl = document.getElementById('navDots');
+let current = 0;
+const total = slides.length;
+
+// Build nav dots
+for (let i = 0; i < total; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goTo(i);
+  navDotsEl.appendChild(dot);
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= total) return;
+  slides[current].classList.remove('active');
+  navDotsEl.children[current].classList.remove('active');
+  current = idx;
+  slides[current].classList.add('active');
+  navDotsEl.children[current].classList.add('active');
+  progressBar.style.width = ((current + 1) / total * 100) + '%';
+  slideCounter.textContent = (current + 1) + ' / ' + total;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+  if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+});
+
+// Click navigation (left/right halves)
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.nav-dots') || e.target.closest('.vote-result') || e.target.closest('button') || e.target.closest('a')) return;
+  if (e.clientX > window.innerWidth / 2) goTo(current + 1);
+  else goTo(current - 1);
+});
+
+// Touch support
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) goTo(current + 1);
+    else goTo(current - 1);
+  }
+});
+
+// Initialize
+goTo(0);
+
+// ── Vote Toggle ──
+function toggleVote(el) {
+  if (el.classList.contains('approved')) {
+    el.classList.remove('approved');
+    el.textContent = '의결 대기';
+  } else {
+    el.classList.add('approved');
+    el.textContent = '✓ 원안 가결';
+  }
+  event.stopPropagation();
+  // 종합 요약 슬라이드 자동 동기화
+  const map = { vote1: 'summary1', vote2: 'summary2', vote3: 'summary3' };
+  if (el.id && map[el.id]) {
+    const summary = document.getElementById(map[el.id]);
+    if (summary) {
+      summary.textContent = el.textContent;
+      el.classList.contains('approved') ? summary.classList.add('approved') : summary.classList.remove('approved');
+    }
+  }
+}
+
+// ── Cash Flow Charts ──
+const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+// Monthly Cash Flow Chart
+const ctxCF = document.getElementById('chartCashFlow');
+if (ctxCF) {
+  new Chart(ctxCF, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: '자금유입',
+          data: [33204, 0, 159019, 528225, 110000, 160000, 60000, 60000, 60000, 80000, 260000, 75000],
+          backgroundColor: 'rgba(46,139,87,0.7)',
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: '자금유출',
+          data: [-370621, -224146, -183779, -201033, -182790, -189790, -197790, -188545, -187885, -187885, -195185, -370985],
+          backgroundColor: 'rgba(217,64,64,0.5)',
+          borderRadius: 4,
+          order: 3
+        },
+        {
+          label: '기말잔액',
+          data: [897401, 673255, 648495, 975687, 902897, 873107, 735317, 606772, 478887, 371002, 435817, 139832],
+          type: 'line',
+          borderColor: '#3B7DD8',
+          backgroundColor: 'rgba(59,125,216,0.1)',
+          borderWidth: 3,
+          pointRadius: 5,
+          pointBackgroundColor: '#3B7DD8',
+          fill: true,
+          tension: 0.3,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } },
+        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + Math.abs(ctx.parsed.y).toLocaleString() + '천원' } }
+      },
+      scales: {
+        y: {
+          grid: { color: '#f0f0f0' },
+          ticks: { callback: v => Math.abs(v).toLocaleString() + '천원', font: { size: 10 } }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Financial Charts ──
+// Revenue Chart
+const ctxRev = document.getElementById('chartRevenue');
+if (ctxRev) {
+  new Chart(ctxRev, {
+    type: 'bar',
+    data: {
+      labels: ['제10기 (2024)', '제11기 (2025)'],
+      datasets: [{
+        label: '매출액',
+        data: [261818182, 723204547],
+        backgroundColor: ['#d0d0d8', '#3B7DD8'],
+        borderRadius: 8,
+        barThickness: 56
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: '영업수익(매출) 추이 — +176.3% 성장', color: '#1B2A4A', font: { size: 14, weight: '600' } },
+        tooltip: { callbacks: { label: (ctx) => ctx.parsed.y.toLocaleString() + '원' } }
+      },
+      scales: {
+        y: { display: true, grid: { color: '#f0f0f0' }, ticks: { callback: v => (v/100000000).toFixed(1) + '억', font: { size: 12 } } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Balance Sheet Chart
+const ctxBal = document.getElementById('chartBalance');
+if (ctxBal) {
+  new Chart(ctxBal, {
+    type: 'bar',
+    data: {
+      labels: ['제10기 (2024)', '제11기 (2025)'],
+      datasets: [
+        { label: '자산', data: [3073022140, 3787388784], backgroundColor: '#3B7DD8', borderRadius: 6, barThickness: 36 },
+        { label: '부채', data: [317966410, 497817393], backgroundColor: '#D94040', borderRadius: 6, barThickness: 36 },
+        { label: '자본', data: [2755055730, 3289571391], backgroundColor: '#2E8B57', borderRadius: 6, barThickness: 36 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } },
+        title: { display: true, text: '재무상태 비교', color: '#1B2A4A', font: { size: 14, weight: '600' } },
+        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + (ctx.parsed.y/100000000).toFixed(2) + '억원' } }
+      },
+      scales: {
+        y: { display: true, grid: { color: '#f0f0f0' }, ticks: { callback: v => (v/100000000).toFixed(0) + '억', font: { size: 12 } } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Segment Chart
+</script>
+</body>
+</html>
